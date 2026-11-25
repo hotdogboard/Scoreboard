@@ -238,6 +238,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
+const VER='v8';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -299,7 +300,7 @@ async function loadScores(force){
     catch(e){errs[l.id]=l.label}
   }));
   for(const k in games)if(!cfg.leagues.includes(k))delete games[k];
-  $('upd').textContent='Scores updated '+fmtTime(new Date());
+  $('upd').textContent='Scores updated '+fmtTime(new Date())+' · '+VER;
   render();
   if(wantJump){wantJump=false;jumpToScores()}
   loadSummaries();

@@ -60,12 +60,15 @@ main{padding:1.4rem 2.2rem 1rem;display:flex;flex-direction:column;gap:1rem;over
 sup{font-size:.5em;color:var(--dim);margin-right:.3rem;vertical-align:super}
 .tm .sc{font:700 2.8rem/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
 .tm.lose .nm,.tm.lose .sc{color:var(--dim)}
-.ft{display:flex;gap:.8rem;align-items:center;font:600 1.15rem "Barlow Condensed",sans-serif;color:var(--dim);margin-top:.2rem;white-space:nowrap}
+.ft{display:flex;gap:.8rem;align-items:center;font:600 1.3rem "Barlow Condensed",sans-serif;color:var(--dim);white-space:nowrap}
+.ft.hd{padding-bottom:.45rem;margin-bottom:.15rem;border-bottom:1px solid var(--line)}
+.ft .lg{font-weight:700}
 .lg{background:var(--tag);color:var(--tagInk);padding:.05rem .7rem;border-radius:2rem}
+.lg[style],.tag[style]{background:color-mix(in srgb,var(--lc) 24%,transparent);color:color-mix(in srgb,var(--lc) 55%,#fff);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lc) 45%,transparent)}
 .ft .st{color:var(--ink)}.live .ft .st{color:var(--live)}
 .ft .net{margin-left:auto;overflow:hidden;text-overflow:ellipsis}
 .odds{font:600 1.15rem "Barlow Condensed",sans-serif;color:#d9c27a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wall.big .tm{grid-template-columns:.5rem 4rem minmax(0,1fr) auto}.wall.big .tm .bar{height:4rem;width:.5rem}.wall.big .tm img{width:4rem;height:4rem}.wall.big .tm .nm{font-size:3.2rem}.wall.big .tm .sc{font-size:4.4rem}.wall.big .ft,.wall.big .odds{font-size:1.5rem}
+.wall.big .tm{grid-template-columns:.5rem 4rem minmax(0,1fr) auto}.wall.big .tm .bar{height:4rem;width:.5rem}.wall.big .tm img{width:4rem;height:4rem}.wall.big .tm .nm{font-size:3.2rem}.wall.big .tm .sc{font-size:4.4rem}.wall.big .ft,.wall.big .odds{font-size:1.6rem}
 .empty{grid-column:1/-1;grid-row:1/-1;display:grid;place-items:center;color:var(--dim);font:600 2rem "Barlow Condensed",sans-serif;text-align:center}
 /* takeover */
 .heroes{flex:1.7;display:grid;grid-template-columns:repeat(var(--h,1),minmax(0,1fr));gap:1.1rem}
@@ -242,6 +245,8 @@ const LEAGUES=[
   {id:'epl',label:'Premier League',path:'soccer/eng.1',sport:'soccer'},
   {id:'mls',label:'MLS',path:'soccer/usa.1',sport:'soccer'}
 ];
+const LC={nfl:'#3d9bff',ncaaf:'#34c38f',nba:'#ff8a3d',ncaab:'#b48cff',nhl:'#7fd3ff',mlb:'#ff5d6c',wnba:'#ff9fc6',epl:'#c6f06a',mls:'#c6f06a'};
+const lgTag=(l,cls)=>`<span class="${cls||'lg'}" style="--lc:${LC[l.id]||'#3d9bff'}">${esc(l.label)}</span>`;
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
 const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
@@ -249,7 +254,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v15';
+const VER='v16';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -446,7 +451,7 @@ function toast(g){toastQ.push(g);if(!toastOn)nextToast()}
 function nextToast(){
   const g=toastQ.shift(),el=$('toast');if(!g){toastOn=false;return}
   toastOn=true;
-  el.innerHTML=`<b>Close game</b><span>${esc(g.lg.label)}</span><span>${esc(g.away.abbr)} ${esc(g.away.score)} &nbsp; ${esc(g.home.abbr)} ${esc(g.home.score)}</span><i>${esc(g.detail)}${g.net?' · '+esc(g.net):''}</i>`;
+  el.innerHTML=`<b>Close game</b>${lgTag(g.lg)}<span>${esc(g.away.abbr)} ${esc(g.away.score)} &nbsp; ${esc(g.home.abbr)} ${esc(g.home.score)}</span><i>${esc(g.detail)}${g.net?' · '+esc(g.net):''}</i>`;
   el.classList.add('on');
   setTimeout(()=>{el.classList.remove('on');setTimeout(nextToast,700)},10000);
 }
@@ -591,7 +596,7 @@ function updateMini(step){
   const per=5,n=Math.ceil(gs.length/per)||1;
   if(step)miniIdx=(miniIdx+1)%n;else if(miniIdx>=n)miniIdx=0;
   el.innerHTML=gs.slice(miniIdx*per,miniIdx*per+per).map(g=>{const pre=g.state==='pre';
-    return`<span class="chip${g.state==='in'?' lv':''}${isFav(g)?' fav':''}${isClose(g)?' close':''}"><span class="lg">${esc(g.lg.label)}</span>${esc(g.away.abbr)}${pre?'':' '+esc(g.away.score)} ${pre?'at ':''}${esc(g.home.abbr)}${pre?'':' '+esc(g.home.score)}<i>${esc(statusText(g))}</i></span>`}).join('');
+    return`<span class="chip${g.state==='in'?' lv':''}${isFav(g)?' fav':''}${isClose(g)?' close':''}">${lgTag(g.lg)}${esc(g.away.abbr)}${pre?'':' '+esc(g.away.score)} ${pre?'at ':''}${esc(g.home.abbr)}${pre?'':' '+esc(g.home.score)}<i>${esc(statusText(g))}</i></span>`}).join('');
   if(step){el.style.animation='none';el.offsetWidth;el.style.animation=''}
 }
 setInterval(()=>updateMini(true),5000);
@@ -651,9 +656,9 @@ function card(g){
   const cl=isClose(g);
   const tops=g.state!=='pre'?[g.away,g.home].filter(t=>t.top):[];
   const tp=tops.length?`<div class="tp">${tops.map(t=>`<div><b>${esc(t.abbr)}</b><span>${esc(t.top.who)}</span><i>${esc(t.top.val)}</i></div>`).join('')}</div>`:'';
-  return`<div class="card${g.state==='in'?' live':''}${isFav(g)?' fav':''}${cl?' close':''}">${tm(g.away)}${tm(g.home)}
-    ${tp}<div class="ft"><span class="lg">${esc(g.lg.label)}</span><span class="st">${esc(statusText(g))}</span>${cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
-    ${od?`<div class="odds">${esc(od)}</div>`:''}</div>`;
+  return`<div class="card${g.state==='in'?' live':''}${isFav(g)?' fav':''}${cl?' close':''}">
+    <div class="ft hd">${lgTag(g.lg)}<span class="st">${esc(statusText(g))}</span>${cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
+    ${tm(g.away)}${tm(g.home)}${tp}${od?`<div class="odds">${esc(od)}</div>`:''}</div>`;
 }
 function heroCard(g){
   const fav=favTeam(g.home.abbr,g.lg)?g.home:g.away,pre=g.state==='pre',s=g.sit;
@@ -679,7 +684,7 @@ function heroCard(g){
   const ldr=sm.leaders&&sm.leaders.length?`<div class="ldr">${sm.leaders.map(t=>`<div class="lt" style="--c:${esc(tc(t.abbr))}"><b>${esc(t.abbr)} leaders</b>${t.cats.map(c=>
     `<div class="lr"><span class="lc">${esc(SH[c.label]||c.label.split(' ')[0])}</span><span class="lw">${esc(c.who)}</span><span class="lv">${esc(c.val)}</span></div>`).join('')}</div>`).join('')}</div>`:'';
   return`<div class="hero${pre?' pre':''}" style="--fc:${esc(fav.color)}">
-    <div class="top"><span class="gd">Game day</span><span class="lg">${esc(g.lg.label)}</span><span class="st">${esc(statusText(g))}</span><span class="net">${esc(g.net)}</span></div>
+    <div class="top"><span class="gd">Game day</span>${lgTag(g.lg)}<span class="st">${esc(statusText(g))}</span><span class="net">${esc(g.net)}</span></div>
     <div class="hb${ldr?'':' solo'}"><div class="hm">${tm(g.away)}${tm(g.home)}${wp}${sit?`<div class="sit">${sit}</div>`:''}</div>${ldr}</div></div>`;
 }
 
@@ -688,7 +693,7 @@ function buildCrawl(all){
   for(const l of LEAGUES){
     const gs=(games[l.id]||[]).filter(g=>relevant(g,true)).sort(sortG);
     if(!gs.length)continue;
-    h+=`<span class="tag">${esc(l.label)}</span>`+gs.map(crawlGame).join('');
+    h+=lgTag(l,'tag')+gs.map(crawlGame).join('');
   }
   if(cfg.news)for(const l of LEAGUES){
     const n=news[l.id];if(!n||!n.length)continue;

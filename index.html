@@ -288,7 +288,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v18';
+const VER='v19';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -829,7 +829,7 @@ $('testCele').addEventListener('click',()=>{
   celebrate(g.lg.sport==='hockey'||g.lg.sport==='soccer'?'Goal':g.lg.sport==='football'?'Touchdown':'Win',t,o,g);
 });
 $('fs').addEventListener('click',()=>{try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}});
-// ---------- game detail: click a card; Back, Esc, the button or 60 s idle returns to the board ----------
+// ---------- game detail: click a card; Back, Esc, the button or 20 s idle returns to the board ----------
 let detId=null,detIdle=null,detPoll=null,detPushed=false;
 const REG={football:4,basketball:4,hockey:3,baseball:9,soccer:2};
 function perLabel(g,i){const sp=g.lg.sport,reg=g.lg.college&&sp==='basketball'?2:REG[sp]||4;
@@ -850,7 +850,7 @@ function closeDetail(fromPop){
   if(detPushed&&!fromPop){detPushed=false;try{history.back()}catch(e){}}else detPushed=false;
   drawView(true);schedule();
 }
-function bumpIdle(){clearTimeout(detIdle);if(detId)detIdle=setTimeout(()=>closeDetail(false),60000)}
+function bumpIdle(){clearTimeout(detIdle);if(detId)detIdle=setTimeout(()=>closeDetail(false),20000)}
 function drawDetail(){
   const g=detId&&findGame(detId),el=$('det');if(!g)return;
   const sm=summ[g.id]||{},pre=g.state==='pre',w=sm.wp;
@@ -872,7 +872,7 @@ function drawDetail(){
   const body=cols.length?`<div class="db" style="grid-template-columns:${cols.map((_,i)=>i===0&&left?'minmax(0,1.25fr)':i===cols.length-1&&ts?'minmax(0,.9fr)':'minmax(0,1.15fr)').join(' ')}">${cols.map(c=>`<div class="dc">${c}</div>`).join('')}</div>`:`<div class="db"><p class="lp1">More detail shows up here once the game is under way.</p></div>`;
   el.innerHTML=`<div class="dh">${lgTag(g.lg)}<span class="st${g.state==='in'?' lv':''}">${esc(statusText(g))}</span><span class="net">${esc(g.net)}</span>${isClose(g)?'<span class="cl">Close game</span>':''}<button type="button" class="gear" id="detClose">Back to board</button></div>
     <div class="dsc">${team(g.away)}<div class="dat">${pre?'at':'–'}</div>${team(g.home)}</div>${line}${wp}${body}
-    <div class="dfoot">Returns to the board after a minute without a click. Press Back to return now.</div>`;
+    <div class="dfoot">Returns to the board after 20 seconds without a click. Press Back to return now.</div>`;
   el.hidden=false;
   const b=$('detClose');if(b)b.addEventListener('click',()=>closeDetail(false));
 }

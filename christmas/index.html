@@ -110,7 +110,7 @@ main{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp
 .sheet{background:var(--bg2);border:2px solid var(--line);border-radius:24px;padding:24px;width:min(560px,100%);max-height:90vh;overflow:auto;display:grid;gap:14px;font-size:17px}
 .sheet button{font-size:16px}
 .sheet label{font-weight:600}
-input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:.5em .7em;min-height:44px;width:100%}
+select,input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:.5em .7em;min-height:44px;width:100%}
 .row{display:flex;gap:8px}
 .row input{flex:1}
 .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between}
@@ -282,6 +282,9 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
     <label for="pinIn">Parent PIN (4 digits)</label>
     <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Set a PIN so kids can't change the list">
     <p class="note" id="pinNote" style="margin:0"></p>
+    <label for="arrIn">Santa reaches our house at</label>
+    <select id="arrIn"><option value="20">8:00 PM</option><option value="21">9:00 PM</option><option value="22">10:00 PM</option><option value="23">11:00 PM</option><option value="23.5">11:30 PM</option><option value="24">Midnight</option><option value="25">1:00 AM</option><option value="26">2:00 AM</option></select>
+    <p class="note" style="margin:0">Pick a time after the kids are asleep. The TV says "Almost here, everyone to bed!" in the hour before.</p>
     <label for="famIn">Family name</label>
     <input id="famIn" placeholder="The Smith Family">
     <label>Kids on the Nice List</label>
@@ -298,7 +301,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KEY='nphq1';
-const fresh=()=>({family:'',kids:[{n:'Ava',s:72},{n:'Leo',s:55},{n:'Mia',s:88},{n:'Baby Sam',s:100}],parent:false,sample:true,pin:''});
+const fresh=()=>({family:'',kids:[{n:'Ava',s:72},{n:'Leo',s:55},{n:'Mia',s:88},{n:'Baby Sam',s:100}],parent:false,sample:true,pin:'',arrive:23.5});
 let st=fresh();
 try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&Array.isArray(v.kids))st=Object.assign(fresh(),v)}catch(e){}
 st.parent=false;
@@ -319,7 +322,8 @@ const route=$('#route'),L=route.getTotalLength();
 const pt=f=>route.getPointAtLength(Math.max(0,Math.min(1,f))*L);
 let stops=[];
 function buildStops(Y){
-  const s=new Date(Y,11,24,6),h=new Date(Y,11,24,23,30),e=new Date(Y,11,25,5);
+  const A=[20,21,22,23,23.5,24,25,26].includes(+st.arrive)?+st.arrive:23.5;
+  const s=new Date(Y,11,24,6),h=new Date(+new Date(Y,11,24)+A*36e5),e=new Date(+h+5.5*36e5);
   const hf=(h-s)/(e-s);
   stops=cities.map((n,i)=>({n,f:(i+.5)/cities.length*hf*.97}));
   stops.push({n:'Your house!',f:hf,home:true});
@@ -428,11 +432,12 @@ const modal=$('#modal');
 function renderIns(){
   $('#kidIns').innerHTML=st.kids.map((k,i)=>`<div class="row"><input data-k="${i}" value="${esc(k.n)}" aria-label="Kid ${i+1} name"><button data-rm="${i}" aria-label="Remove ${esc(k.n)}">Remove</button></div>`).join('');
 }
-$('#setBtn').onclick=()=>needPin(()=>{$('#famIn').value=st.family;$('#pinIn').value=st.pin||'';pinNote();renderIns();modal.classList.add('open');$(st.pin?'#famIn':'#pinIn').focus()});
+$('#setBtn').onclick=()=>needPin(()=>{$('#famIn').value=st.family;$('#pinIn').value=st.pin||'';$('#arrIn').value=String(st.arrive||23.5);pinNote();renderIns();modal.classList.add('open');$(st.pin?'#famIn':'#pinIn').focus()});
 const pinNote=()=>{$('#pinNote').textContent=st.pin?'Elf mode, Setup and the phone remote now need this PIN.':'No PIN yet: anyone can change the Nice List.'};
 $('#pinIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,4);e.target.value=v;if(v.length===4||v===''){st.pin=v;save();pinNote()}};
 $('#doneBtn').onclick=()=>{modal.classList.remove('open');$('#setBtn').focus()};
 modal.addEventListener('keydown',e=>{if(e.key==='Escape')$('#doneBtn').click()});
+$('#arrIn').onchange=e=>{st.arrive=+e.target.value;save();lastYear=null;render()};
 $('#famIn').oninput=e=>{st.family=e.target.value.slice(0,40);save();renderKids()};
 $('#kidIns').addEventListener('input',e=>{const i=e.target.dataset.k;if(i==null)return;if(st.sample){st.sample=false}st.kids[i].n=e.target.value.slice(0,24);save();renderKids()});
 $('#kidIns').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;st.kids.splice(+b.dataset.rm,1);st.sample=false;save();renderIns();renderKids()});

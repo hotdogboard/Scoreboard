@@ -16,6 +16,7 @@
 :root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 [hidden]{display:none!important}
+#remoteBtn,#voiceBtn,.sync{display:none!important}
 html,body{height:100%}
 body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#1d3570 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font:clamp(16px,1.2vw,30px)/1.45 Fredoka,system-ui,sans-serif;overflow-x:clip}
 #snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
@@ -238,7 +239,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
   <p class="note" style="margin:0">Enter the parent PIN.</p>
   <div class="dots" id="pinDots"></div>
   <div class="pad" id="pad"></div>
-  <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" id="trustIn" style="width:24px;min-height:24px"> Remember on this device (your phone, not the TV)</label>
+  <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" id="trustIn" style="width:24px;min-height:24px"> Remember on this device (not recommended on the TV)</label>
   <button id="pinCancel">Cancel</button>
 </div></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
@@ -252,7 +253,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
     <label>Kids on the Nice List</label>
     <div id="kidIns" style="display:grid;gap:8px"></div>
     <button id="addKid">+ Add a kid</button>
-    <p class="note">When you are signed in to Claude, these settings sync between your phone and TV. Each family who opens the link keeps its own list.</p>
+    <p class="note">Everything is saved on this TV only. Each TV that opens the link keeps its own list.</p>
     <button id="prevBtn">Preview Christmas Eve flight (fast-forward)</button>
     <div class="btns"><button id="resetBtn">Reset everything</button><button id="doneBtn" class="on">Done</button></div>
   </div>
@@ -434,7 +435,7 @@ $('#sendBtn').onclick=()=>{
   if(!ref){toast('Sign in to Claude on both screens to send messages');return}
   const m={text:t,at:Date.now()};seenMsg=m.at;push({msg:m});$('#msgIn').value='';toast('Message sent to the TV!');
 };
-function applyMode(){
+function applyMode(){if(location.hash==='#remote'){history.replaceState(null,'',location.pathname);}remote=false;document.body.classList.remove('is-remote');return;
   if(location.hash==='#remote'&&st.pin&&!trusted()&&Date.now()-lastUnlock>5000){needPin(()=>applyMode(),()=>{location.hash=''});return}
   remote=location.hash==='#remote';document.body.classList.toggle('is-remote',remote);renderRemote()}
 $('#remoteBtn').onclick=()=>needPin(()=>{location.hash='remote'});
@@ -495,7 +496,7 @@ async function flush(){
     if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')){ref=null;setSync('Saved on this screen only')}}
   writing=false;if(pending)flush();
 }
-(async()=>{
+(async()=>{return;
   const local=()=>setSync(remote?'Saved on this phone only':'Saved on this screen only');
   try{
     if(typeof claude==='undefined'||!claude.use){local();return}

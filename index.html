@@ -12,7 +12,7 @@
    PICTURE: big live score cards in team colours over a crawl; takeover hero on game day
    COLOUR and TYPE: near-black field, signal red tags, team colours; Barlow Condensed + Inter
    LAYOUT: top bar, rotating main stage, two-tier crawl pinned to the bottom */
-:root{--bg:#0d1117;--glow:#15243b;--panel:rgba(255,255,255,.05);--line:rgba(255,255,255,.09);--ink:#eef2f7;--dim:#8b96a8;--red:#3d9bff;--tag:rgba(61,155,255,.18);--tagInk:#a9d1ff;--crawl:#0a0d13;--live:#ff5d5d;--up:#3ddc84;--warn:#ffb547;--scale:1;font-size:calc((.9vh + .5vw) * var(--scale))}
+:root{--bg:#0d1117;--glow:#15243b;--panel:rgba(255,255,255,.05);--line:rgba(255,255,255,.09);--ink:#eef2f7;--dim:#8b96a8;--red:#3d9bff;--tag:rgba(61,155,255,.18);--tagInk:#a9d1ff;--crawl:#0a0d13;--live:#ff5d5d;--up:#3ddc84;--warn:#ffb547;--upset:#ff4f9a;--scale:1;font-size:calc((.9vh + .5vw) * var(--scale))}
 :root[data-skin=graphite]{--bg:#111214;--glow:#1d2024;--panel:rgba(255,255,255,.055);--line:rgba(255,255,255,.1);--ink:#f2f2f3;--dim:#93959b;--red:#5ad1e6;--tag:rgba(90,209,230,.16);--tagInk:#a6ebf6;--crawl:#0b0c0e}
 :root[data-skin=classic]{--bg:#0b0b0f;--glow:#0b0b0f;--panel:#16161d;--line:#262631;--ink:#f4f4f6;--dim:#9a9aa8;--red:#e4002b;--tag:#e4002b;--tagInk:#fff;--crawl:#000}
 *{box-sizing:border-box;min-width:0}
@@ -45,10 +45,13 @@ main{padding:1.4rem 2.2rem 1rem;display:flex;flex-direction:column;gap:1rem;over
 .card.fav{border-color:color-mix(in srgb,var(--red) 70%,transparent);box-shadow:0 0 2rem -1rem var(--red)}
 .card.close{border-color:var(--warn);box-shadow:0 0 2.4rem -1rem var(--warn)}
 .card.close.live::after{background:var(--warn)}
+.card.upset{border-color:var(--upset);box-shadow:0 0 2.4rem -1rem var(--upset)}.card.upset.live::after{background:var(--upset)}
+.cl.up{background:var(--upset);color:#fff}
 .cl{background:var(--warn);color:#1f1500;padding:.05rem .6rem;border-radius:2rem;font-style:normal}
 .g .cl{margin-right:.7rem;font-size:.75em;vertical-align:.15em}
 .toast{position:fixed;top:1.2rem;left:50%;transform:translate(-50%,-180%);z-index:40;display:flex;gap:1rem;align-items:center;padding:.6rem 1.6rem .6rem .7rem;border-radius:3rem;background:color-mix(in srgb,var(--bg) 85%,#000);border:1px solid var(--warn);box-shadow:0 1rem 2.4rem -1rem #000;font:700 1.9rem "Barlow Condensed",sans-serif;white-space:nowrap;opacity:0;transition:transform .5s cubic-bezier(.2,1.2,.4,1),opacity .4s}
 .toast.on{transform:translate(-50%,0);opacity:1}
+.toast.up{border-color:var(--upset)}.toast.up b{background:var(--upset)!important;color:#fff!important}
 .toast b{background:var(--warn);color:#1f1500;padding:.05rem .8rem;border-radius:2rem}
 .toast i{font-style:normal;color:var(--dim);font-weight:600}
 .card.live::after{content:"";position:absolute;inset:0 0 auto;height:.3rem;background:var(--live)}
@@ -121,6 +124,7 @@ sup{font-size:.5em;color:var(--dim);margin-right:.3rem;vertical-align:super}
 .row .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row.me{background:var(--tag);border-radius:.6rem}
 .mv{font-size:1.1rem;text-align:right}.mv.u{color:var(--up)}.mv.d{color:var(--live)}
+.golf .row{grid-template-columns:3.2rem 0 minmax(0,1fr) 5rem 6rem;font-size:1.65rem;padding:.42rem .8rem}.golf .r.un{color:#ff8a8a}.golf .r.th{color:var(--dim)}
 .rank .row{grid-template-columns:2.6rem 2.4rem minmax(0,1fr) 4.6rem 3rem;font-size:1.75rem;padding:.55rem .6rem}
 .tbl.few .row{font-size:2.4rem;padding:.9rem 1.2rem;grid-template-columns:3.2rem 3.2rem minmax(0,1fr) repeat(var(--n,4),6.5rem)}.tbl.few .row.hd{font-size:1.5rem;padding:.5rem 1.2rem}.tbl.few img{width:3rem;height:3rem}
 /* crawl */
@@ -134,7 +138,7 @@ footer{background:var(--crawl);border-top:1px solid var(--line);box-shadow:0 -1p
 .g{margin-right:2.2rem}.g b{font-weight:700}.g .l{color:#8a8a96}.g i{font-style:normal;color:#b8b8c4;margin-left:.5rem;font-weight:500}
 .g u{text-decoration:none;color:#d9c27a;margin-left:.6rem;font-weight:500}
 .g.lv i{color:var(--live)}.g.fav{color:var(--ink);text-decoration:underline;text-decoration-color:var(--red);text-underline-offset:.35rem;text-decoration-thickness:.2rem}
-.h{margin-right:1.4rem;font-weight:500}.sep{color:var(--red);margin-right:1.4rem}
+.h{margin-right:1.4rem;font-weight:500}.h .ip{font-style:normal;color:var(--dim)}.h .is{color:var(--warn);font-weight:700}.g .gp{margin:0 .3rem 0 0;color:var(--dim)}.sep{color:var(--red);margin-right:1.4rem}
 .status{display:flex;justify-content:space-between;padding:.3rem 2.2rem;font-size:.85rem;color:var(--dim);opacity:.7;background:var(--crawl)}
 .status .err{color:#ff8a8a}
 /* celebration */
@@ -256,6 +260,8 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
       <label><input type="checkbox" id="sOdds"> Betting lines</label>
       <label><input type="checkbox" id="sCele"> Score celebrations</label>
       <label><input type="checkbox" id="sTake"> Game-day takeover</label>
+      <label><input type="checkbox" id="sInj"> Injury report</label>
+      <label><input type="checkbox" id="sGolf"> Men's golf (PGA Tour)</label>
     </div></div>
     <div class="btns">
       <button type="button" class="pri" id="save">Save</button>
@@ -283,18 +289,18 @@ const LC={nfl:'#3d9bff',ncaaf:'#34c38f',nba:'#ff8a3d',ncaab:'#b48cff',nhl:'#7fd3
 const lgTag=(l,cls)=>`<span class="${cls||'lg'}" style="--lc:${LC[l.id]||'#3d9bff'}">${esc(l.label)}</span>`;
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
-const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
+const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true,inj:true,golf:true};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v20';
+const VER='v21';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
 let pages=[],extras=[],cur={k:'p',i:0},cycle=0,xIdx=0,vTimer=null,crawlHtml='',pendingCrawl=null,heroSig=null,heroNow=[];
 const summ={},summAt={},seasonType={};let wxText='';
-const closeSeen=new Set(),toastQ=[];let toastOn=false,wantJump=false;
+const closeSeen=new Set(),upsetSeen=new Set(),toastQ=[];let toastOn=false,wantJump=false;
 
 function load(){
   let c={...DEF};
@@ -380,7 +386,10 @@ function parseSummary(j){
   const bt=((j.boxscore||{}).teams||[]).map(t=>({abbr:(t.team&&t.team.abbreviation)||'',st:(t.statistics||[]).map(x=>({k:x.label||x.displayName||x.name||'',v:x.displayValue??''}))}));
   let tstats=[];
   if(bt.length===2){const m=new Map(bt[1].st.map(x=>[x.k,x.v]));tstats=bt[0].st.filter(x=>x.k&&m.has(x.k)).slice(0,9).map(x=>({k:x.k,a:x.v,h:m.get(x.k),aAbbr:bt[0].abbr}))}
-  return{wp,leaders,leadAll,scoring,tstats};
+  const inj=(j.injuries||[]).map(t=>({abbr:String((t.team&&t.team.abbreviation)||'').toUpperCase(),list:(t.injuries||[]).map(i=>{const a=i.athlete||{};
+    return{who:a.shortName||a.displayName||'',pos:(a.position&&a.position.abbreviation)||'',status:i.status||(i.type&&(i.type.description||i.type.name))||'',
+      what:(i.details&&(i.details.type||i.details.detail||i.details.location))||''}}).filter(i=>i.who&&!/^active$/i.test(i.status))}));
+  return{wp,leaders,leadAll,scoring,tstats,inj};
 }
 async function fetchSummary(g,force){
   if(demo)return;
@@ -480,6 +489,8 @@ function watch(gs){
     const p=prev.get(g.id);
     prev.set(g.id,{a:+g.away.score||0,h:+g.home.score||0,state:g.state});
     if(isClose(g)&&!closeSeen.has(g.id)){closeSeen.add(g.id);if(p){toast(g);wantJump=true}}
+    if(isUpset(g)&&!upsetSeen.has(g.id)){upsetSeen.add(g.id);if(p){const u=upsetPair(g);toast(g,`Upset alert · #${u.trail.rank} ${u.trail.abbr} trails`,'up');wantJump=true}}
+    if(p&&p.state!=='post'&&g.state==='post'&&g.lg.college){const u=upsetPair(g);if(u)toast(g,`Upset · #${u.trail.rank} ${u.trail.abbr} falls`,'up')}
     if(!p||!cfg.cele)continue;
     for(const [t,o,old,now] of [[g.away,g.home,p.a,+g.away.score||0],[g.home,g.away,p.h,+g.home.score||0]]){
       if(!favTeam(t.abbr,g.lg))continue;
@@ -495,11 +506,11 @@ function watch(gs){
     }
   }
 }
-function toast(g){toastQ.push(g);if(!toastOn)nextToast()}
+function toast(g,label,kind){toastQ.push({g,label:label||'Close game',kind:kind||''});if(!toastOn)nextToast()}
 function nextToast(){
-  const g=toastQ.shift(),el=$('toast');if(!g){toastOn=false;return}
-  toastOn=true;
-  el.innerHTML=`<b>Close game</b>${lgTag(g.lg)}<span>${esc(g.away.abbr)} ${esc(g.away.score)} &nbsp; ${esc(g.home.abbr)} ${esc(g.home.score)}</span><i>${esc(g.detail)}${g.net?' · '+esc(g.net):''}</i>`;
+  const q=toastQ.shift(),el=$('toast');if(!q){toastOn=false;return}
+  toastOn=true;const g=q.g;el.className='toast '+q.kind;
+  el.innerHTML=`<b>${esc(q.label)}</b>${lgTag(g.lg)}<span>${esc(g.away.abbr)} ${esc(g.away.score)} &nbsp; ${esc(g.home.abbr)} ${esc(g.home.score)}</span><i>${esc(g.detail)}${g.net?' · '+esc(g.net):''}</i>`;
   el.classList.add('on');
   setTimeout(()=>{el.classList.remove('on');setTimeout(nextToast,700)},10000);
 }
@@ -548,7 +559,20 @@ function isClose(g){
   if(sp==='soccer'){const mn=parseInt(g.clock,10);return d<=1&&(isNaN(mn)?p>=2:mn>=70)}
   return false;
 }
-const sortG=(a,b)=>(isFav(b)-isFav(a))||(isClose(b)-isClose(a))||(ORD[a.state]-ORD[b.state])||(a.state==='post'?b.date-a.date:a.date-b.date);
+// college upset: a ranked team trailing late to an unranked team or one ranked 8+ spots lower
+function upsetPair(g){
+  const a=g.away,h=g.home,as=+a.score||0,hs=+h.score||0;if(as===hs)return null;
+  const lead=as>hs?a:h,trail=lead===a?h:a;
+  if(!trail.rank||(lead.rank&&lead.rank-trail.rank<8))return null;
+  return{lead,trail};
+}
+function isUpset(g){
+  if(!g.lg.college||g.state!=='in')return false;
+  const late=g.lg.sport==='football'?g.period>=3:g.period>=2;
+  return late&&!!upsetPair(g);
+}
+const hot=g=>isClose(g)||isUpset(g);
+const sortG=(a,b)=>(isFav(b)-isFav(a))||(hot(b)-hot(a))||(ORD[a.state]-ORD[b.state])||(a.state==='post'?b.date-a.date:a.date-b.date);
 function heroGames(all){
   if(!cfg.take)return[];
   return all.filter(g=>isFav(g)&&(g.state==='in'||(g.state==='pre'&&g.date-Date.now()<3*36e5&&g.date-Date.now()>-36e5))).sort(sortG).slice(0,2);
@@ -566,6 +590,7 @@ function render(){
     for(let i=0;i<feat.length&&pages.length<6;i+=per)pages.push({k:'scores',games:feat.slice(i,i+per),t:20});
     if(!pages.length)pages.push({k:'scores',games:[],t:20});
     if(cfg.stand!=='off'){
+      if(golfOn())extras.push({k:'golf',t:18});
       for(const l of LEAGUES){(stand[l.id]||[]).forEach(x=>extras.push({k:'stand',l,s:x,t:16}));}
       for(const l of LEAGUES){(ranks[l.id]||[]).forEach(r=>extras.push({k:'rank',l,r,t:16}));}
     }
@@ -623,6 +648,13 @@ function drawView(anim){
     const hd=`<div class="row hd"><span class="rk"></span><span></span><span>Team</span>${cs.map(c=>`<span class="r">${c[0]}</span>`).join('')}</div>`;
     const cols=[];for(let i=0;i<tc;i++)cols.push(hd+rows.slice(i*half,(i+1)*half).map((r,j)=>`<div class="row${favTeam(r.abbr,v.l)?' me':''}"><span class="rk">${i*half+j+1}</span>${r.logo?`<img src="${esc(r.logo)}" alt="">`:'<span></span>'}<span class="tn">${esc(r.name)}</span>${r.vals.map(x=>`<span class="r">${esc(x)}</span>`).join('')}</div>`).join(''));
     st.innerHTML=`<div class="tbl${rows.length<=5?' few':''}" style="--tc:${tc};--n:${cs.length}">${cols.map(c=>`<div>${c}</div>`).join('')}</div>`;
+  }else if(v.k==='golf'){
+    const ev=golf.ev;if(!ev){st.innerHTML='';return}
+    setTitle('PGA Tour · '+esc(ev.name)+(ev.detail?' · '+esc(ev.detail):''));
+    const rows=ev.rows.slice(0,20),tc=2,half=Math.ceil(rows.length/tc);
+    const hd='<div class="row hd"><span class="rk">Pos</span><span></span><span>Player</span><span class="r">Score</span><span class="r">Thru</span></div>';
+    const cols=[];for(let i=0;i<tc;i++)cols.push(hd+rows.slice(i*half,(i+1)*half).map(r=>`<div class="row"><span class="rk">${esc(r.pos)}</span><span></span><span class="tn">${esc(r.name)}</span><span class="r${/^-/.test(r.sc)?' un':''}">${esc(r.sc)}</span><span class="r th">${esc(r.thru)}</span></div>`).join(''));
+    st.innerHTML=`<div class="tbl golf" style="--tc:${tc};--n:2">${cols.map(c=>`<div>${c}</div>`).join('')}</div>`;
   }else if(v.k==='rank'){
     setTitle(esc(v.l.label)+' · '+esc(v.r.name));
     const rows=v.r.rows,tc=3,per=Math.ceil(rows.length/tc);
@@ -655,6 +687,39 @@ setInterval(()=>updateMini(true),5000);
 // ---------- your teams bar: record + next game, or the live score ----------
 const teamInfo={};
 function scopedFavs(){return favList().map(f=>f.match(/^([A-Z]+):([A-Z0-9]+)$/)).filter(Boolean).map(m=>({lg:LG[m[1].toLowerCase()],abbr:m[2]})).filter(x=>x.lg&&cfg.leagues.includes(x.lg.id))}
+// men's golf: PGA Tour leaderboard, shown while a tournament is on (and the day after)
+const golf={ev:null};
+const golfOn=()=>cfg.golf&&golf.ev&&golf.ev.rows.length&&(golf.ev.state==='in'||(golf.ev.state==='post'&&Date.now()-golf.ev.end<36*36e5));
+async function loadGolf(){
+  if(demo||!cfg.golf)return;
+  try{
+    const j=await getJSON(API+'golf/pga/scoreboard'),ev=(j.events||[])[0];
+    if(!ev){golf.ev=null;return}
+    const st=(ev.status&&ev.status.type)||{},cp=(ev.competitions||[])[0]||{};
+    const rows=(cp.competitors||[]).map((c,i)=>{const s=c.status||{},a=c.athlete||{};let sc=c.score;if(sc&&typeof sc==='object')sc=sc.displayValue;
+      const th=s.thru===18?'F':s.thru?'Thru '+s.thru:'';
+      return{ord:+(c.sortOrder||c.order)||i+1,pos:(s.position&&s.position.displayName)||'',name:a.shortName||a.displayName||'',sc:sc==null?'':String(sc),thru:s.displayValue&&s.displayValue.length<12?s.displayValue:th}})
+      .filter(r=>r.name).sort((x,y)=>x.ord-y.ord);
+    golf.ev={name:ev.shortName||ev.name||'',state:st.state||'pre',detail:st.shortDetail||st.detail||'',end:new Date(ev.endDate||ev.date),rows};
+  }catch(e){}
+  render();
+}
+// injury report for your teams, taken from the summary of each team's next (or current) game
+const injuries={};
+async function loadInjuries(){
+  if(demo)return;
+  await Promise.all(scopedFavs().map(async({lg,abbr})=>{
+    const key=lg.id+':'+abbr,ti=teamInfo[key];
+    const g=(games[lg.id]||[]).find(x=>x.away.abbr.toUpperCase()===abbr||x.home.abbr.toUpperCase()===abbr&&x.state!=='post');
+    const id=g?g.id:ti&&ti.next&&ti.next.id&&ti.next.date-Date.now()<8*864e5?ti.next.id:null;
+    if(!id){delete injuries[key];return}
+    await fetchSummary(g||{id,lg,state:'pre'},true);
+    const t=((summ[id]||{}).inj||[]).find(t=>t.abbr===abbr);
+    if(t)injuries[key]=t.list;
+  }));
+  render();
+}
+const injShort=l=>l.slice(0,8).map(i=>`${i.who}${i.pos?' ('+i.pos+')':''} ${i.status}`).join(' · ');
 async function loadTeams(){
   if(demo)return;
   await Promise.all(scopedFavs().map(async({lg,abbr})=>{
@@ -671,7 +736,7 @@ async function loadTeams(){
       const t=j.team||{},ne=(t.nextEvent||[])[0],cp=ne&&ne.competitions&&ne.competitions[0];
       let next=null;
       if(cp){const cs=cp.competitors||[],me=cs.find(c=>String((c.team||{}).abbreviation).toUpperCase()===abbr||String((c.team||{}).id)===String(t.id)),op=cs.find(c=>c!==me);
-        if(me&&op)next={date:new Date(ne.date),opp:(op.team||{}).abbreviation||'',home:me.homeAway==='home'}}
+        if(me&&op)next={id:String(ne.id||''),date:new Date(ne.date),opp:(op.team||{}).abbreviation||'',home:me.homeAway==='home'}}
       teamInfo[key]={lg,abbr,name:(t.name||t.shortDisplayName||abbr)+(lg.college?(lg.sport==='football'?' FB':' BB'):''),color:col(t.color),
         rec:(t.record&&t.record.items&&t.record.items[0]&&t.record.items[0].summary)||'',next};
     }catch(e){}
@@ -707,8 +772,8 @@ function card(g){
   const cl=isClose(g);
   const tops=g.state!=='pre'?[g.away,g.home].filter(t=>t.top):[];
   const tp=tops.length?`<div class="tp">${tops.map(t=>`<div><b>${esc(t.abbr)}</b><span>${esc(t.top.who)}</span><i>${esc(t.top.val)}</i></div>`).join('')}</div>`:'';
-  return`<div class="card${g.state==='in'?' live':''}${isFav(g)?' fav':''}${cl?' close':''}" data-id="${esc(g.id)}">
-    <div class="ft hd">${lgTag(g.lg)}<span class="st">${esc(statusText(g))}</span>${cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
+  return`<div class="card${g.state==='in'?' live':''}${isFav(g)?' fav':''}${cl?' close':''}${isUpset(g)?' upset':''}" data-id="${esc(g.id)}">
+    <div class="ft hd">${lgTag(g.lg)}<span class="st">${esc(statusText(g))}</span>${isUpset(g)?'<span class="cl up">Upset</span>':cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
     ${tm(g.away)}${tm(g.home)}${tp}${od?`<div class="odds">${esc(od)}</div>`:''}</div>`;
 }
 function heroCard(g){
@@ -720,6 +785,7 @@ function heroCard(g){
   if(pre){
     const od=oddsText(g);
     sit=`<span>Starts in</span><span class="cd" data-ko="${g.date.getTime()}"></span>${od?`<span class="odds" style="font-size:inherit">${esc(od)}</span>`:''}`;
+    const il=cfg.inj&&injuries[g.lg.id+':'+fav.abbr.toUpperCase()];if(il&&il.length)sit+=`<span class="lp">Injuries: ${esc(injShort(il))}</span>`;
   }else{
     if(s.dd)sit+=`<span>${esc(s.dd)}</span>`;
     if(s.rz)sit+=`<span class="rz">Red zone</span>`;
@@ -746,6 +812,14 @@ function buildCrawl(all){
     if(!gs.length)continue;
     h+=lgTag(l,'tag')+gs.map(crawlGame).join('');
   }
+  if(cfg.inj)for(const{lg,abbr}of scopedFavs()){
+    const l=injuries[lg.id+':'+abbr],ti=teamInfo[lg.id+':'+abbr];if(!l||!l.length||!ti)continue;
+    h+=`<span class="tag" style="--lc:${LC[lg.id]}">${esc(ti.name)} injuries</span>`+l.slice(0,8).map(i=>`<span class="h">${esc(i.who)}${i.pos?' <i class="ip">'+esc(i.pos)+'</i>':''} <b class="is">${esc(i.status)}</b>${i.what?' · '+esc(i.what):''}</span><span class="sep">/</span>`).join('');
+  }
+  if(golfOn()){
+    const gr=golf.ev.rows.slice(0,10);
+    if(gr.length)h+=`<span class="tag" style="--lc:#e7c35a">PGA · ${esc(golf.ev.name)}</span>`+gr.map(r=>`<span class="g"><i class="gp">${esc(r.pos)}</i> <b>${esc(r.name)}</b> ${esc(r.sc)}<i>${esc(r.thru)}</i></span>`).join('');
+  }
   if(cfg.news)for(const l of LEAGUES){
     const n=news[l.id];if(!n||!n.length)continue;
     h+=`<span class="tag news">${esc(l.label)} News</span>`+n.map(t=>`<span class="h">${esc(t)}</span><span class="sep">/</span>`).join('');
@@ -756,7 +830,7 @@ function buildCrawl(all){
 function crawlGame(g){
   const a=g.away,b=g.home,pre=g.state==='pre',od=oddsText(g);
   const nm=(t,o)=>`<b class="${g.state==='post'&&o.winner?'l':''}">${rankName(t)}</b>${pre?'':' '+esc(t.score)}`;
-  return`<span class="g${g.state==='in'?' lv':''}${isFav(g)?' fav':''}">${isClose(g)?'<em class="cl">Close</em>':''}${nm(a,b)}${pre?' at ':'&nbsp; '}${nm(b,a)}<i>${esc(statusText(g))}</i>${od?`<u>${esc(od)}</u>`:''}</span>`;
+  return`<span class="g${g.state==='in'?' lv':''}${isFav(g)?' fav':''}">${isUpset(g)?'<em class="cl up">Upset</em>':isClose(g)?'<em class="cl">Close</em>':''}${nm(a,b)}${pre?' at ':'&nbsp; '}${nm(b,a)}<i>${esc(statusText(g))}</i>${od?`<u>${esc(od)}</u>`:''}</span>`;
 }
 
 // crawl: moved by the clock every frame, so its pace never changes; new content swaps in at the loop point
@@ -802,7 +876,7 @@ function applyLook(){
 // ---------- settings ----------
 const dlg=$('dlg');
 $('sLeagues').innerHTML=LEAGUES.map(l=>`<label><input type="checkbox" value="${l.id}"> ${esc(l.label)}</label>`).join('');
-const CHK={sNews:'news',sOdds:'odds',sCele:'cele',sTake:'take'};
+const CHK={sNews:'news',sOdds:'odds',sCele:'cele',sTake:'take',sInj:'inj',sGolf:'golf'};
 function openSettings(){
   $('sFavs').value=cfg.favs;$('sCity').value=cfg.city;
   $('sSkin').value=cfg.skin||'midnight';$('sStand').value=cfg.stand;$('sPace').value=String(cfg.pace||1);$('sSpeed').value=String(cfg.crawl);$('sSize').value=String(cfg.size);$('sDelay').value=String(cfg.delay);
@@ -819,7 +893,7 @@ $('save').addEventListener('click',()=>{
     leagues:[...$('sLeagues').querySelectorAll('input:checked')].map(c=>c.value)};
   for(const k in CHK)cfg[CHK[k]]=$(k).checked;
   save();closeSettings();applyLook();crawlHtml='';heroSig=null;
-  if(demo){render()}else{loadScores(true).then(()=>{loadStandings();loadTeams()});loadNews();loadWx()}
+  if(demo){render()}else{loadScores(true).then(()=>{loadStandings();loadTeams().then(loadInjuries)});loadNews();loadWx();loadGolf()}
 });
 $('testCele').addEventListener('click',()=>{
   closeSettings();
@@ -865,10 +939,13 @@ function drawDetail(){
     :g.sit.lp?`<h4>Last play</h4><p class="lp1">${esc(g.sit.lp)}</p>`:pre?`<h4>Game info</h4><p class="lp1">${esc(statusText(g))}${g.net?' on '+esc(g.net):''}${od?'<br>'+esc(od):''}</p>`:'';
   const SH={'Passing Yards':'Pass','Rushing Yards':'Rush','Receiving Yards':'Rec','Points':'Pts','Rebounds':'Reb','Assists':'Ast','Goals':'G','Saves':'SV','Hits':'H','Home Runs':'HR','RBIs':'RBI','Sacks':'Sack','Tackles':'Tkl','Interceptions':'Int'};
   const ld=(sm.leadAll||sm.leaders||[]);
-  const lead=ld.length?`<h4>Leaders</h4><div class="dlead">${ld.map(t=>`<div class="lt" style="--c:${esc((g.away.abbr===t.abbr?g.away:g.home).color)}"><b>${esc(t.abbr)}</b>${t.cats.map(c=>`<div class="lr"><span class="lc">${esc(SH[c.label]||c.label.split(' ')[0])}</span><span class="lw">${esc(c.who)}</span><span class="lv">${esc(c.val)}</span></div>`).join('')}</div>`).join('')}</div>`
+  let lead=ld.length?`<h4>Leaders</h4><div class="dlead">${ld.map(t=>`<div class="lt" style="--c:${esc((g.away.abbr===t.abbr?g.away:g.home).color)}"><b>${esc(t.abbr)}</b>${t.cats.map(c=>`<div class="lr"><span class="lc">${esc(SH[c.label]||c.label.split(' ')[0])}</span><span class="lw">${esc(c.who)}</span><span class="lv">${esc(c.val)}</span></div>`).join('')}</div>`).join('')}</div>`
     :[g.away,g.home].some(t=>t.top)?`<h4>Top performers</h4>${[g.away,g.home].filter(t=>t.top).map(t=>`<div class="lr"><span class="lc">${esc(t.abbr)}</span><span class="lw">${esc(t.top.who)}</span><span class="lv">${esc(t.top.val)}</span></div>`).join('')}`:'';
   const ts=(sm.tstats||[]).length?`<h4>Team stats</h4><table class="dts"><thead><tr><th>${esc(g.away.abbr)}</th><th></th><th>${esc(g.home.abbr)}</th></tr></thead><tbody>${sm.tstats.map(x=>`<tr><td>${esc(x.a)}</td><th>${esc(x.k)}</th><td>${esc(x.h)}</td></tr>`).join('')}</tbody></table>`:'';
-  const cols=[left,lead,ts].filter(Boolean);
+  const ij=(sm.inj||[]).filter(t=>t.list.length);
+  const injH=ij.length?`<h4>Injuries</h4>${ij.map(t=>`<div class="lr"><span class="lc">${esc(t.abbr)}</span><span class="lw">${esc(injShort(t.list))}</span></div>`).join('')}`:'';
+  if(injH&&!ts&&lead)lead+=injH;
+  const cols=[left,lead||injH,ts?ts+(lead?injH:''):''].filter(Boolean);
   const body=cols.length?`<div class="db" style="grid-template-columns:${cols.map((_,i)=>i===0&&left?'minmax(0,1.25fr)':i===cols.length-1&&ts?'minmax(0,.9fr)':'minmax(0,1.15fr)').join(' ')}">${cols.map(c=>`<div class="dc">${c}</div>`).join('')}</div>`:`<div class="db"><p class="lp1">More detail shows up here once the game is under way.</p></div>`;
   el.innerHTML=`<div class="dh">${lgTag(g.lg)}<span class="st${g.state==='in'?' lv':''}">${esc(statusText(g))}</span><span class="net">${esc(g.net)}</span>${isClose(g)?'<span class="cl">Close game</span>':''}<button type="button" class="gear" id="detClose">Back to board</button></div>
     <div class="dsc">${team(g.away)}<div class="dat">${pre?'at':'–'}</div>${team(g.home)}</div>${line}${wp}${body}
@@ -914,6 +991,7 @@ function DEMO(){
          g('nba','pre','',200,'FDSN',t('DET','Pistons','#c8102e','#1d42ba','','10-7'),t('CLE','Cavaliers','#860038','#fdbb30','','12-5'),{line:'CLE -4.5',ou:'226.5'})],
     nhl:[g('nhl','in','12:02 - 2nd',-60,'TNT',t('CHI','Blackhawks','#cf0a2c','#000000','1','8-10-3'),t('DAL','Stars','#006847','#8f8f8c','2','12-6-2')),
          g('nhl','post','Final/OT',-1400,'ESPN+',t('TOR','Maple Leafs','#00205b','#ffffff','3','12-6-2',1),t('MTL','Canadiens','#af1e2d','#192168','2','8-10-3'))],
+    ncaab:[g('ncaab','in','8:30 - 1st',-50,'ESPN2',t('OAK','Golden Grizzlies','#b59a57','#000000','41','4-3'),t('KU','Jayhawks','#0051ba','#e8000d','38','6-1','',6))],
     ncaaf:[g('ncaaf','pre','',4300,'BTN',t('MSU','Spartans','#18453b','#ffffff','','7-4','',null),t('MD','Terrapins','#e03a3e','#ffd520','','5-6'),{line:'MSU -6.5',ou:'51.5'})]
   };
 }
@@ -944,6 +1022,10 @@ if(demo){
   summ.nflGBDET={wp:{a:22,h:78,t:0,live:true},leaders:[
     L('GB',[['Passing Yards','Packers QB','16/27, 188 YDS, 1 TD'],['Rushing Yards','Packers RB','11 CAR, 52 YDS'],['Receiving Yards','Packers WR','5 REC, 71 YDS']]),
     L('DET',[['Passing Yards','Lions QB','21/28, 254 YDS, 2 TD'],['Rushing Yards','Lions RB','17 CAR, 96 YDS, 1 TD'],['Receiving Yards','Lions WR','7 REC, 102 YDS']])]};
+  Object.assign(games.ncaab[0],{period:1,clock:'8:30'});
+  injuries['nfl:DET']=[{who:'Lions RB',pos:'RB',status:'Questionable',what:'Ankle'},{who:'Lions CB',pos:'CB',status:'Out',what:'Hamstring'},{who:'Lions G',pos:'G',status:'Doubtful',what:'Knee'}];
+  injuries['nba:DET']=[{who:'Pistons F',pos:'F',status:'Day-To-Day',what:'Back'}];
+  golf.ev={name:'Sample Invitational',state:'in',detail:'Round 3',end:new Date(Date.now()+2*864e5),rows:[['1','T. Example','-14','Thru 12'],['2','R. Sample','-12','Thru 14'],['T3','J. Placeholder','-11','F'],['T3','M. Demo','-11','Thru 9'],['5','K. Testing','-10','Thru 11'],['T6','A. Fairway','-9','Thru 13'],['T6','B. Bunker','-9','F'],['T6','C. Birdie','-9','Thru 10'],['9','D. Eagle','-8','Thru 15'],['T10','E. Putter','-7','Thru 8'],['T10','F. Wedge','-7','F'],['T10','G. Driver','-7','Thru 12'],['13','H. Iron','-6','Thru 16'],['T14','I. Green','-5','F'],['T14','L. Links','-5','Thru 7'],['16','N. Caddie','-4','Thru 14']].map(([pos,name,sc,thru],i)=>({ord:i+1,pos,name,sc,thru}))};
   summ.nbaDETCLE={wp:{a:64,h:36,t:0,live:true},leaders:[
     L('DET',[['Points','Pistons G','24'],['Rebounds','Pistons C','11'],['Assists','Pistons G','8']]),
     L('CLE',[['Points','Cavaliers G','21'],['Rebounds','Cavaliers C','9'],['Assists','Cavaliers G','6']])]};
@@ -959,14 +1041,15 @@ if(demo){
   for(const l of Object.values(games))watch(l);
   $('upd').textContent='Demo mode: sample data, not real scores';render();
   setTimeout(()=>{const g=games.nfl[0];g.home.score='31';g.detail='5:51 - 3rd';watch(games.nfl);render()},5000);
+  setTimeout(()=>{const g=games.ncaab[0];Object.assign(g,{period:2,clock:'7:45',detail:'7:45 - 2nd'});g.away.score='61';g.home.score='55';watch(games.ncaab);render();if(wantJump){wantJump=false;jumpToScores()}},19000);
   setTimeout(()=>{const g=games.nhl[0];Object.assign(g,{period:3,clock:'4:10',detail:'4:10 - 3rd'});g.home.score='2';watch(games.nhl);render();if(wantJump){wantJump=false;jumpToScores()}},15000);
   setTimeout(()=>{const g=games.nfl[0];g.home.score='34';g.away.score='20';g.state='post';g.detail='Final';g.home.winner=true;g.sit={dd:'',pos:'',rz:false,lp:'',outs:null,on:[]};watch(games.nfl);
     const d=games.nba[1];Object.assign(d,{state:'in',period:3,clock:'5:20',detail:'5:20 - 3rd',odds:null,date:new Date(Date.now()-50*6e4)});d.away.score='78';d.home.score='74';d.sit.lp='Pistons guard drives baseline for a layup';
     watch(games.nba);render()},26000);
   setTimeout(()=>{const d=games.nba[1];Object.assign(d,{state:'post',detail:'Final'});d.away.score='112';d.home.score='104';d.away.winner=true;d.sit.lp='';watch(games.nba);render()},62000);
 }else{
-  loadScores(true).then(()=>{loadStandings();loadTeams()});loadNews();loadWx();
-  setInterval(loadTeams,30*60000);
+  loadScores(true).then(()=>{loadStandings();loadTeams().then(loadInjuries)});loadNews();loadWx();loadGolf();
+  setInterval(loadTeams,30*60000);setInterval(loadInjuries,60*60000);setInterval(loadGolf,5*60000);
   setInterval(()=>loadScores(false),15000);
   setInterval(loadNews,10*60000);
   setInterval(loadStandings,30*60000);

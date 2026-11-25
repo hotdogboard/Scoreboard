@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>North Pole HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: cozy, magical, big and readable from the couch — a TV that feels like Christmas Eve.
+   IDEA: the mission-control screen at Santa's workshop: countdown, flight tracker, Nice List, news ticker.
+   PICTURE: a night-sky flight map with Santa's sleigh riding a golden route over snowy hills.
+   COLOUR and TYPE: midnight blue field, snow white, sleigh red accent, warm gold; Mountains of Christmas titles, Fredoka body.
+   LAYOUT: countdown band on top, tracker left and Nice List right, scrolling ticker pinned at the bottom; stacks on phones. */
+:root{color-scheme:dark;--bg:#0b1838;--bg2:#13254f;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.14);--ink:#f4f7ff;--dim:#b9c6e6;--red:#e2333f;--gold:#f6c64e;--green:#3fb27f}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#1d3570 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font:clamp(16px,1.2vw,30px)/1.45 Fredoka,system-ui,sans-serif;overflow-x:clip}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;gap:clamp(10px,1.2vw,24px);padding:clamp(14px,2vw,40px) clamp(14px,2.5vw,56px) 0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1,h2{font-family:"Mountains of Christmas",cursive;font-weight:700;margin:0;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(34px,3.4vw,84px);color:var(--ink)}
+h1 span{color:var(--gold)}
+.fam{color:var(--dim);font-size:.95em;margin-top:2px}
+h2{font-size:clamp(28px,2.3vw,58px);color:var(--gold)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;transition:opacity .6s}
+body.idle .wrap .tools,body.idle .wrap .sync{opacity:0;pointer-events:none}
+body.idle{cursor:none}
+button{font:inherit;font-size:clamp(15px,1vw,24px);color:var(--ink);background:var(--bg2);border:2px solid var(--line);border-radius:999px;min-height:44px;padding:.35em 1em;display:inline-flex;align-items:center;gap:.45em;cursor:pointer}
+button:hover{border-color:var(--gold)}
+button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+button svg{width:1.2em;height:1.2em}
+button.on{background:var(--red);border-color:var(--red)}
+.count{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:clamp(14px,2.5vw,60px);background:linear-gradient(90deg,var(--red),#b81f2c);border-radius:clamp(16px,1.5vw,32px);padding:clamp(12px,1.1vw,30px) clamp(18px,2.4vw,56px);box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25)}
+.sleeps{display:flex;align-items:baseline;gap:.25em;white-space:nowrap}
+.sleeps b{font-size:clamp(64px,5.6vw,170px);line-height:.9;font-weight:700;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.2)}
+.sleeps span{font-size:clamp(20px,1.9vw,48px);font-weight:600;line-height:1.05}
+.clock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1vw,22px)}
+.clock div{background:rgba(0,0,0,.18);border-radius:clamp(10px,1vw,22px);text-align:center;padding:.3em .2em}
+.clock b{display:block;font-size:clamp(30px,3vw,86px);line-height:1.05;font-variant-numeric:tabular-nums}
+.clock small{font-size:clamp(13px,.95vw,24px);opacity:.9}
+.merry{font-family:"Mountains of Christmas",cursive;font-size:clamp(44px,5vw,130px);line-height:1;grid-column:1/-1;text-align:center}
+main{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp(10px,1.2vw,24px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:clamp(16px,1.5vw,32px);padding:clamp(14px,1.5vw,34px);display:flex;flex-direction:column;gap:clamp(8px,.8vw,18px)}
+.fig{position:relative;flex:1;min-height:clamp(150px,12vw,400px);border-radius:clamp(12px,1vw,24px);overflow:hidden;background:linear-gradient(#0a1530,#17306a)}
+.fig svg{position:absolute;inset:0;width:100%;height:100%}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12em),1fr));gap:clamp(8px,.8vw,18px)}
+.stat{background:rgba(0,0,0,.2);border-radius:clamp(10px,.8vw,18px);padding:.5em .8em}
+.stat small{display:block;color:var(--dim);font-size:.8em}
+.stat b{font-size:1.15em;font-weight:600;line-height:1.25}
+.bars{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17em),1fr));gap:.45em 1.4em}
+.bar{display:grid;grid-template-columns:8.5em minmax(0,1fr) 3.2em;align-items:center;gap:.6em}
+.bar i,.meter{display:block;height:.75em;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar i em,.meter em{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .6s}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.kids{display:grid;gap:clamp(6px,.6vw,14px)}
+.kid{background:rgba(0,0,0,.2);border-radius:clamp(12px,1vw,22px);padding:.35em .9em .5em;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.25em .8em;align-items:center}
+.kid .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .7em;min-width:0}
+.kid .nm{font-size:1.3em;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stars{display:flex;gap:.15em}
+.stars svg{width:1.3em;height:1.3em}
+.kid .meter{grid-column:1/-1;height:.9em}
+.kid .meter em{background:linear-gradient(90deg,var(--red),var(--gold))}
+.kid .lvl{color:var(--gold);font-weight:500}
+.adj{display:flex;gap:.4em}
+.adj button{padding:.2em .8em;font-weight:700}
+.kid.pop{animation:pop .7s}
+@keyframes pop{30%{transform:scale(1.04);box-shadow:0 0 0 4px var(--gold)}}
+.note{color:var(--dim);font-size:.85em;margin:0}
+.ticker{margin:0 calc(-1*clamp(14px,2.5vw,56px));background:var(--gold);color:#3a1d05;overflow:hidden;white-space:nowrap;font-weight:600;font-size:clamp(17px,1.35vw,34px);padding:.45em 0}
+.ticker div{display:inline-block;animation:tick 90s linear infinite}
+.ticker span{margin-right:3em}
+.ticker span::before{content:"\2605";margin-right:.6em;color:var(--red)}
+@keyframes tick{to{transform:translateX(-50%)}}
+.modal{position:fixed;inset:0;z-index:5;background:rgba(5,10,25,.75);display:none;place-items:center;padding:16px}
+.modal.open{display:grid}
+.sheet{background:var(--bg2);border:2px solid var(--line);border-radius:24px;padding:24px;width:min(560px,100%);max-height:90vh;overflow:auto;display:grid;gap:14px;font-size:17px}
+.sheet button{font-size:16px}
+.sheet label{font-weight:600}
+input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:.5em .7em;min-height:44px;width:100%}
+.row{display:flex;gap:8px}
+.row input{flex:1}
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between}
+
+.sync{display:inline-block;font-size:.8em;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:.15em .8em;margin-top:6px}
+.ov{position:fixed;inset:0;z-index:8;display:none;place-items:center;padding:4vw;background:rgba(4,8,22,.82)}
+.ov.open{display:grid}
+.letter{width:min(1300px,100%);background:#fffaf0;color:#2a1608;border-radius:clamp(16px,2vw,40px);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:drop .8s cubic-bezier(.2,1.4,.4,1)}
+.letter header{justify-content:flex-start;flex-wrap:nowrap;background:var(--red);color:#fff;padding:clamp(14px,1.6vw,34px) clamp(20px,3vw,64px);display:flex;align-items:center;gap:.7em}
+.letter header h2{color:#fff;font-size:clamp(30px,3.4vw,84px)}
+.letter p{margin:0;padding:clamp(22px,3vw,70px);font-size:clamp(28px,3.6vw,92px);line-height:1.2;font-weight:600;text-wrap:balance}
+.letter small{display:block;padding:0 clamp(22px,3vw,70px) clamp(18px,2vw,44px);color:#7a4a22;font-size:clamp(15px,1.2vw,30px)}
+.cheer{text-align:center;animation:drop .8s cubic-bezier(.2,1.4,.4,1)}
+.cheer svg{width:clamp(120px,16vw,380px);height:auto;animation:spin 3s ease-in-out infinite}
+.cheer b{display:block;font-family:"Mountains of Christmas",cursive;font-size:clamp(60px,8vw,220px);line-height:1;color:var(--gold)}
+.cheer span{font-size:clamp(26px,3vw,80px);font-weight:600}
+@keyframes drop{from{transform:translateY(-40px) scale(.9);opacity:0}}
+@keyframes spin{50%{transform:rotate(12deg) scale(1.08)}}
+body.is-remote .wrap{display:none}
+#remote{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:18px 16px 40px;display:none;gap:16px;font-size:17px}
+body.is-remote #remote{display:grid}
+#remote h1{font-size:40px}
+#remote h2{font-size:30px}
+#remote .card{padding:16px}
+.rk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;background:rgba(0,0,0,.2);border-radius:16px;padding:10px 12px}
+.rk .nm{font-size:20px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .meter{grid-column:1/-1;height:12px}
+.rk .meter em{background:linear-gradient(90deg,var(--red),var(--gold))}
+.rk .adj button{min-width:56px;justify-content:center;font-size:22px}
+.rk .adj button.up{background:var(--green);border-color:var(--green)}
+textarea{font:inherit;font-size:17px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:.6em .7em;width:100%;min-height:96px;resize:vertical}
+textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font-size:15px;min-height:40px;padding:.3em .9em}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pad button{justify-content:center;font-size:26px;min-height:64px;border-radius:16px}
+.dots{display:flex;gap:14px;justify-content:center;min-height:28px}
+.dots i{width:22px;height:22px;border-radius:50%;border:3px solid var(--gold)}
+.dots i.f{background:var(--gold)}
+.sheet.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9;background:var(--gold);color:#3a1d05;font-weight:600;border-radius:99px;padding:.6em 1.4em;display:none}
+.toast.open{display:block}
+@media(min-width:1100px) and (min-aspect-ratio:4/3){.wrap{height:100vh}main{min-height:0}.card{min-height:0;overflow:hidden}.kids{overflow:auto}}
+@media(max-width:900px){main{grid-template-columns:minmax(0,1fr)}.fig{flex:none;min-height:0;aspect-ratio:1000/420}}
+@media(max-width:600px){.count{grid-template-columns:minmax(0,1fr)}.sleeps{justify-content:center}.bar{grid-template-columns:6.5em minmax(0,1fr) 3em}}
+@media(prefers-reduced-motion:reduce){.ticker div{animation:none}.kid.pop{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>North Pole <span>HQ</span></h1>
+      <div class="fam" id="fam"></div>
+      <span class="sync">Saved on this screen</span>
+    </div>
+    <div class="tools">
+      <button id="fsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Full screen</span></button>
+      <button id="voiceBtn" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9Z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Santa's voice</span></button>
+      <button id="remoteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Phone remote</span></button>
+      <button id="parentBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Elf mode</span></button>
+      <button id="setBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Setup</span></button>
+    </div>
+  </header>
+
+  <section class="count" id="count" aria-live="polite"></section>
+
+  <main>
+    <section class="card">
+      <h2 id="trkTitle">Santa Tracker</h2>
+      <div class="fig">
+        <svg viewBox="0 0 1000 420" preserveAspectRatio="xMidYMid slice" aria-label="Map of Santa's route">
+          <defs>
+            <radialGradient id="glow"><stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#ff6b6b" stop-opacity="0"/></radialGradient>
+            <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef4ff"/><stop offset="1" stop-color="#a9bde6"/></linearGradient>
+            <g id="star"><path d="M0-4 1.1-1.2 4 0 1.1 1.2 0 4-1.1 1.2-4 0-1.1-1.2Z" fill="#fff"/></g>
+          </defs>
+          <g id="stars"></g>
+          <circle cx="880" cy="70" r="38" fill="#fff6d8"/><circle cx="866" cy="60" r="38" fill="#14295c"/>
+          <path d="M0 360 Q160 310 320 350 T640 340 T1000 345 V420 H0Z" fill="url(#hill)"/>
+          <path d="M0 385 Q200 355 420 385 T1000 380 V420 H0Z" fill="#dfe8fb"/>
+          <g transform="translate(150 300)">
+            <rect x="-5" y="-70" width="10" height="72" fill="#fff"/>
+            <path d="M-5-60h10M-5-44h10M-5-28h10M-5-12h10" stroke="#e2333f" stroke-width="7"/>
+            <circle cy="-74" r="9" fill="#f6c64e"/>
+            <text y="30" text-anchor="middle" fill="#fff" font-size="20" font-family="Fredoka" font-weight="600">North Pole</text>
+          </g>
+          <path id="route" d="M150 240 C300 110 520 100 700 170 S900 270 950 240" fill="none" stroke="#f6c64e" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round" opacity=".85"/>
+          <path id="flown" fill="none" stroke="#f6c64e" stroke-width="6" stroke-linecap="round"/>
+          <g id="dots"></g>
+          <g id="sleigh">
+            <circle cx="66" cy="-15" r="14" fill="url(#glow)"/>
+            <path d="M20-14 L44-12" stroke="#f6c64e" stroke-width="2"/>
+            <ellipse cx="46" cy="-8" rx="14" ry="7" fill="#8a5a3b"/>
+            <path d="M36-3v12M42-2v11M50-2v11M56-3v12" stroke="#6b4329" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="60" cy="-16" r="6" fill="#8a5a3b"/>
+            <path d="M57-21l-4-9m2 4-5-1M61-21l3-9m-1 4 5-2" stroke="#d9b27c" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="66" cy="-15" r="2.6" fill="#ff3b3b"/>
+            <circle cx="-26" cy="-26" r="9" fill="#a06a3c"/>
+            <circle cx="-13" cy="-28" r="7" fill="#f3c9a8"/>
+            <path d="M-20-31 L-12-46 L-6-31Z" fill="#e2333f"/><circle cx="-12" cy="-46" r="2.6" fill="#fff"/>
+            <circle cx="-13" cy="-23" r="5.5" fill="#fff"/>
+            <path d="M-32-20h40q8 0 8 8v6q0 8-8 8h-36q-6 0-8-8Z" fill="#e2333f"/>
+            <path d="M-30-18h36" stroke="#ff8a8f" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M-36 6h52q9 0 11-9" fill="none" stroke="#f6c64e" stroke-width="3.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <div id="trk"></div>
+    </section>
+
+    <section class="card">
+      <h2>The Nice List</h2>
+      <div class="kids" id="kids"></div>
+      <p class="note" id="sample">These are sample names. Tap Setup to add your kids.</p>
+      <p class="note" id="elfNote">Turn on Elf mode to move kids up or down the list.</p>
+    </section>
+  </main>
+
+  <div class="ticker" aria-hidden="true"><div id="tick"></div></div>
+</div>
+
+
+<div id="remote">
+  <div>
+    <h1>North Pole <span style="color:var(--gold)">Remote</span></h1>
+    <span class="sync">Connecting…</span>
+  </div>
+  <section class="card">
+    <h2>The Nice List</h2>
+    <div class="kids" id="rkids"></div>
+    <p class="note">Tap + and the TV celebrates.</p>
+  </section>
+  <section class="card">
+    <h2>Message from Santa</h2>
+    <div class="chips" id="chips"></div>
+    <textarea id="msgIn" maxlength="280" placeholder="Ho ho ho! I saw you help your brother today..."></textarea>
+    <button id="sendBtn" class="on" style="justify-self:start">Send to the TV</button>
+  </section>
+  <div class="btns"><button id="rSetBtn">Setup</button><button id="tvBtn">Switch to TV view</button></div>
+</div>
+<div class="ov" id="msgOv" role="dialog" aria-label="Message from Santa"><div class="letter">
+  <header><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><h2>A message from Santa!</h2></header>
+  <p id="msgText"></p><small>Sent from the North Pole, just now</small>
+</div></div>
+<div class="ov" id="cheerOv" aria-live="polite"><div class="cheer">
+  <svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" fill="#f6c64e" stroke="#fff6d8" stroke-width=".6"/></svg>
+  <b id="cheerName"></b><span>moved up the Nice List!</span>
+</div></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="pinModal" role="dialog" aria-modal="true" aria-labelledby="pinTitle"><div class="sheet" style="width:min(400px,100%)">
+  <h2 id="pinTitle">Parents only</h2>
+  <p class="note" style="margin:0">Enter the parent PIN.</p>
+  <div class="dots" id="pinDots"></div>
+  <div class="pad" id="pad"></div>
+  <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" id="trustIn" style="width:24px;min-height:24px"> Remember on this device (your phone, not the TV)</label>
+  <button id="pinCancel">Cancel</button>
+</div></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="sheet">
+    <h2 id="setTitle">Setup</h2>
+    <label for="pinIn">Parent PIN (4 digits)</label>
+    <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Set a PIN so kids can't change the list">
+    <p class="note" id="pinNote" style="margin:0"></p>
+    <label for="famIn">Family name</label>
+    <input id="famIn" placeholder="The Smith Family">
+    <label>Kids on the Nice List</label>
+    <div id="kidIns" style="display:grid;gap:8px"></div>
+    <button id="addKid">+ Add a kid</button>
+    <p class="note">When you are signed in to Claude, these settings sync between your phone and TV. Each family who opens the link keeps its own list.</p>
+    <button id="prevBtn">Preview Christmas Eve flight (fast-forward)</button>
+    <div class="btns"><button id="resetBtn">Reset everything</button><button id="doneBtn" class="on">Done</button></div>
+  </div>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='nphq1';
+const fresh=()=>({family:'',kids:[{n:'Ava',s:72},{n:'Leo',s:55},{n:'Mia',s:88},{n:'Baby Sam',s:100}],parent:false,sample:true,pin:''});
+let st=fresh();
+try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&Array.isArray(v.kids))st=Object.assign(fresh(),v)}catch(e){}
+st.parent=false;
+const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+let pushT=null;
+const save=()=>{saveLocal();clearTimeout(pushT);pushT=setTimeout(()=>push(),450)};
+let preview=null;
+const now=()=>preview?new Date(preview.f+(Date.now()-preview.r)*900):new Date();
+const pad=n=>String(n).padStart(2,'0');
+const fmt=n=>Math.round(n).toLocaleString();
+
+const xmasFor=d=>{const y=d.getFullYear();return d>=new Date(y,11,26)?new Date(y+1,11,25):new Date(y,11,25)};
+
+/* ---------- route ---------- */
+const cities=['Fiji','Auckland, New Zealand','Sydney, Australia','Tokyo, Japan','Beijing, China','Mumbai, India','Dubai','Nairobi, Kenya','Moscow, Russia','Rome, Italy','Paris, France','London, England','Rio de Janeiro, Brazil'];
+const after=['Los Angeles','Anchorage, Alaska','Honolulu, Hawaii'];
+const route=$('#route'),L=route.getTotalLength();
+const pt=f=>route.getPointAtLength(Math.max(0,Math.min(1,f))*L);
+let stops=[];
+function buildStops(Y){
+  const s=new Date(Y,11,24,6),h=new Date(Y,11,24,23,30),e=new Date(Y,11,25,5);
+  const hf=(h-s)/(e-s);
+  stops=cities.map((n,i)=>({n,f:(i+.5)/cities.length*hf*.97}));
+  stops.push({n:'Your house!',f:hf,home:true});
+  after.forEach((n,i)=>stops.push({n,f:hf+(i+1)/(after.length+1)*(1-hf)}));
+  $('#dots').innerHTML=stops.map(o=>{const p=pt(o.f);return o.home
+    ?`<g transform="translate(${p.x} ${p.y})"><path d="M-16 4v-14l16-13 16 13v14Z" fill="#f6c64e"/><rect x="-5" y="-6" width="10" height="10" fill="#7a3b12"/><text y="28" text-anchor="middle" fill="#fff" font-size="18" font-family="Fredoka" font-weight="600">Your house</text></g>`
+    :`<circle cx="${p.x}" cy="${p.y}" r="6" fill="#fff" opacity=".85"/>`}).join('');
+  return {s,h,e};
+}
+$('#stars').innerHTML=Array.from({length:60},(_,i)=>{const x=(i*137.5)%1000,y=(i*71.3)%300,k=.5+((i*7)%10)/12;return `<use href="#star" transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})" opacity="${(.4+k/3).toFixed(2)}"/>`}).join('');
+
+function placeSleigh(f){
+  const p=pt(f),q=pt(Math.min(1,f+.01));
+  const a=Math.max(-14,Math.min(14,Math.atan2(q.y-p.y,q.x-p.x)*180/Math.PI*.35));
+  $('#sleigh').setAttribute('transform',`translate(${p.x} ${p.y-(f<=0?70:14)}) rotate(${a.toFixed(1)}) scale(1.35)`);
+  const n=Math.max(2,Math.round(f*120));
+  let d='';for(let i=0;i<=n;i++){const r=pt(f*i/n);d+=(i?'L':'M')+r.x.toFixed(1)+' '+r.y.toFixed(1)}
+  $('#flown').setAttribute('d',f>0?d:'');
+}
+
+let lastYear=null,T=null;
+function stat(label,val){return `<div class="stat"><small>${esc(label)}</small><b>${esc(val)}</b></div>`}
+function dur(ms){const m=Math.max(0,Math.round(ms/6e4));const h=Math.floor(m/60);return h?`${h}h ${m%60}m`:`${m} min`}
+
+function render(){
+  const d=now(),X=xmasFor(d),Y=X.getFullYear();
+  if(Y!==lastYear){T=buildStops(Y);lastYear=Y}
+  /* countdown */
+  const c=$('#count');
+  const xEnd=new Date(Y,11,26);
+  if(d>=X&&d<xEnd){
+    c.innerHTML=`<div class="merry">Merry Christmas!</div>`;
+  }else{
+    const ms=X-d,day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    const sl=Math.round((X-day)/864e5);
+    const D=Math.floor(ms/864e5),H=Math.floor(ms/36e5)%24,M=Math.floor(ms/6e4)%60,S=Math.floor(ms/1e3)%60;
+    c.innerHTML=`<div class="sleeps"><b>${sl}</b><span>${sl===1?'sleep':'sleeps'}<br>until Christmas</span></div>
+      <div class="clock">${[[D,'days'],[pad(H),'hours'],[pad(M),'minutes'],[pad(S),'seconds']].map(([v,l])=>`<div><b>${v}</b><small>${l}</small></div>`).join('')}</div>`;
+  }
+  /* tracker */
+  const t=$('#trk');
+  if(d<T.s){
+    placeSleigh(0);
+    $('#trkTitle').textContent='Santa Tracker: getting ready';
+    const dec1=new Date(Y,11,1),q=Math.max(.08,Math.min(1,(d-new Date(Y,10,1))/(T.s-new Date(Y,10,1))));
+    const bars=[['Toys built',q],['Reindeer training',Math.min(1,q*1.1+.04)],['Sleigh polish',Math.min(1,q*.9+.06)],['Cookie fuel',Math.min(1,q*1.05)]];
+    const msgs=['Elves are wrapping presents','Rudolph is practicing his landings','Mrs. Claus is baking cookies','Santa is checking the list twice','The reindeer are napping'];
+    const m=msgs[Math.floor(d/2e4)%msgs.length];
+    t.innerHTML=`<div class="status">${stat('Santa is at','The North Pole')}${stat('Right now',m)}${stat('Takeoff','Christmas Eve, 6 AM')}</div>
+      <div class="bars">${bars.map(([n,v])=>`<div class="bar"><span>${n}</span><i><em style="width:${(v*100).toFixed(0)}%"></em></i><span>${Math.round(v*100)}%</span></div>`).join('')}</div>`;
+  }else if(d<T.e){
+    const f=(d-T.s)/(T.e-T.s);placeSleigh(f);
+    $('#trkTitle').textContent='Santa Tracker: in flight!';
+    let i=0;while(i<stops.length-1&&stops[i+1].f<=f)i++;
+    const cur=stops[i].f<=f?stops[i]:{n:'The Pacific Ocean'},nxt=stops.find(o=>o.f>f);
+    const toHome=T.h-d;
+    let home=toHome>36e5?`Gets to your house in about ${dur(toHome)}`:toHome>0?'Almost here. Everyone to bed!':'Santa has visited your house!';
+    t.innerHTML=`<div class="status">${stat('Just visited',cur.n)}${stat('Heading to',nxt?nxt.n:'The North Pole')}${stat('Presents delivered',fmt(f*2.3e9))}</div>
+      <div class="stat"><small>Your house</small><b>${esc(home)}</b></div>`;
+  }else{
+    placeSleigh(1);
+    $('#trkTitle').textContent='Santa Tracker: back home';
+    t.innerHTML=`<div class="status">${stat('Santa is','Back at the North Pole')}${stat('Presents delivered','All of them!')}${stat('Reindeer','Fast asleep')}</div>`;
+  }
+}
+
+/* ---------- nice list ---------- */
+const lvl=s=>s<25?'Elves are watching':s<50?'Warming up':s<75?'Nice':s<95?'Super nice':'Top of the list';
+const starSvg=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" fill="${on?'#f6c64e':'rgba(255,255,255,.15)'}"/></svg>`;
+function bumpKid(i,dd){
+  const k=st.kids[i];if(!k)return;
+  k.s=Math.max(0,Math.min(100,k.s+dd));saveLocal();
+  if(dd>0){news=`${k.n} just moved up the Nice List!`;const b={i,n:k.n,at:Date.now()};if(!remote)celebrate(k.n);seenBump=b.at;push({bump:b})}else push();
+  renderKids(dd>0?i:null);
+}
+function renderKids(pop){
+  $('#kids').innerHTML=st.kids.map((k,i)=>`<div class="kid${pop===i?' pop':''}">
+    <div class="top"><span class="nm">${esc(k.n||'Elf-in-training')}</span><span class="lvl">${lvl(k.s)}</span></div>
+    <div class="stars" aria-label="${Math.ceil(k.s/20)} of 5 stars">${[1,2,3,4,5].map(n=>starSvg(k.s>=n*20-10)).join('')}</div>
+    <span class="meter"><em style="width:${k.s}%"></em></span>
+    ${st.parent?`<div class="adj"><button data-i="${i}" data-d="-5" aria-label="Less nice for ${esc(k.n)}">&minus;</button><button data-i="${i}" data-d="5" aria-label="More nice for ${esc(k.n)}">+</button></div>`:'<div></div>'}
+  </div>`).join('');
+  $('#sample').hidden=!st.sample;
+  $('#elfNote').hidden=st.parent;
+  $('#fam').textContent=st.family?st.family+"'s Christmas command center":'Christmas command center';
+  const pb=$('#parentBtn');pb.classList.toggle('on',st.parent);pb.setAttribute('aria-pressed',st.parent);
+  pb.querySelector('span').textContent=st.parent?'Elf mode: on':'Elf mode';
+  renderTicker();renderRemote();
+}
+$('#kids').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-i]');if(!b)return;
+  const i=+b.dataset.i,dd=+b.dataset.d,k=st.kids[i];
+  bumpKid(i,dd);
+  const again=document.querySelector(`#kids button[data-i="${i}"][data-d="${dd}"]`);if(again)again.focus();
+});
+
+let news='';
+function renderTicker(){
+  const names=st.kids.map(k=>k.n).filter(Boolean);
+  const base=['Rudolph’s nose tested: extra bright this year','Cookie supply at the workshop: plenty','Weather report: perfect sleigh-flying skies','Elves report record toy production','Reminder: leave out carrots for the reindeer','Mrs. Claus says hot cocoa is ready'];
+  const per=names.map((n,i)=>[`Elf report: ${n} is on the Nice List`,`The elves are keeping an eye on ${n}`,`${n}’s name was spotted on Santa’s list`][i%3]);
+  const all=(news?[news]:[]).concat(base.flatMap((b,i)=>per[i]?[b,per[i]]:[b]));
+  const h=all.map(m=>`<span>${esc(m)}</span>`).join('');$('#tick').innerHTML=h+h;
+}
+
+/* ---------- setup ---------- */
+const modal=$('#modal');
+function renderIns(){
+  $('#kidIns').innerHTML=st.kids.map((k,i)=>`<div class="row"><input data-k="${i}" value="${esc(k.n)}" aria-label="Kid ${i+1} name"><button data-rm="${i}" aria-label="Remove ${esc(k.n)}">Remove</button></div>`).join('');
+}
+$('#setBtn').onclick=()=>needPin(()=>{$('#famIn').value=st.family;$('#pinIn').value=st.pin||'';pinNote();renderIns();modal.classList.add('open');$(st.pin?'#famIn':'#pinIn').focus()});
+const pinNote=()=>{$('#pinNote').textContent=st.pin?'Elf mode, Setup and the phone remote now need this PIN.':'No PIN yet: anyone can change the Nice List.'};
+$('#pinIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,4);e.target.value=v;if(v.length===4||v===''){st.pin=v;save();pinNote()}};
+$('#doneBtn').onclick=()=>{modal.classList.remove('open');$('#setBtn').focus()};
+modal.addEventListener('keydown',e=>{if(e.key==='Escape')$('#doneBtn').click()});
+$('#famIn').oninput=e=>{st.family=e.target.value.slice(0,40);save();renderKids()};
+$('#kidIns').addEventListener('input',e=>{const i=e.target.dataset.k;if(i==null)return;if(st.sample){st.sample=false}st.kids[i].n=e.target.value.slice(0,24);save();renderKids()});
+$('#kidIns').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;st.kids.splice(+b.dataset.rm,1);st.sample=false;save();renderIns();renderKids()});
+$('#addKid').onclick=()=>{if(st.kids.length>=8)return;if(st.sample){st.kids=[];st.sample=false}st.kids.push({n:'',s:60});save();renderIns();renderKids();const ins=$('#kidIns').querySelectorAll('input');ins[ins.length-1].focus()};
+$('#resetBtn').onclick=()=>{const keep=st.pin;st=fresh();st.pin=keep;save();renderIns();$('#famIn').value='';renderKids()};
+$('#prevBtn').onclick=()=>{
+  if(preview){preview=null;$('#prevBtn').textContent='Preview Christmas Eve flight (fast-forward)'}
+  else{const Y=xmasFor(new Date()).getFullYear();preview={r:Date.now(),f:+new Date(Y,11,24,5,58)};$('#prevBtn').textContent='Stop preview (back to real time)'}
+  render();
+};
+let elfT=null;
+const setElf=on=>{st.parent=on;clearTimeout(elfT);if(on)elfT=setTimeout(()=>setElf(false),180000);renderKids()};
+$('#parentBtn').onclick=()=>{if(st.parent)setElf(false);else needPin(()=>setElf(true))};
+
+
+/* ---------- remote (phone) ---------- */
+let remote=false;
+const presets=['Santa saw you share today. Great job!','Bedtime in 10 minutes. The elves are watching!','Ho ho ho! Thank you for cleaning up!','Rudolph says be kind to your brothers and sisters!','Only a few sleeps left. Keep being nice!'];
+$('#chips').innerHTML=presets.map((p,i)=>`<button data-p="${i}">${esc(p)}</button>`).join('');
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(b){$('#msgIn').value=presets[+b.dataset.p];$('#msgIn').focus()}});
+function renderRemote(){
+  if(!remote)return;
+  $('#rkids').innerHTML=st.kids.map((k,i)=>`<div class="rk"><div class="nm">${esc(k.n||'Elf-in-training')}</div>
+    <div class="adj"><button data-i="${i}" data-d="-5" aria-label="Less nice for ${esc(k.n)}">&minus;</button><button class="up" data-i="${i}" data-d="5" aria-label="More nice for ${esc(k.n)}">+</button></div>
+    <span class="meter"><em style="width:${k.s}%"></em></span><div class="lvl" style="color:var(--gold)">${lvl(k.s)} &middot; ${k.s}%</div></div>`).join('')||'<p class="note">No kids yet. Tap Setup to add them.</p>';
+}
+$('#rkids').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b)return;const i=+b.dataset.i,dd=+b.dataset.d;bumpKid(i,dd);if(dd>0)toast(ref?`Sent! The TV is celebrating ${st.kids[i].n}.`:'Saved on this phone only');});
+let toastT=null;
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('open');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('open'),2600)}
+$('#sendBtn').onclick=()=>{
+  const t=$('#msgIn').value.trim().slice(0,280);if(!t)return;
+  if(!ref){toast('Sign in to Claude on both screens to send messages');return}
+  const m={text:t,at:Date.now()};seenMsg=m.at;push({msg:m});$('#msgIn').value='';toast('Message sent to the TV!');
+};
+function applyMode(){
+  if(location.hash==='#remote'&&st.pin&&!trusted()&&Date.now()-lastUnlock>5000){needPin(()=>applyMode(),()=>{location.hash=''});return}
+  remote=location.hash==='#remote';document.body.classList.toggle('is-remote',remote);renderRemote()}
+$('#remoteBtn').onclick=()=>needPin(()=>{location.hash='remote'});
+$('#tvBtn').onclick=()=>{location.hash='';};
+$('#rSetBtn').onclick=()=>$('#setBtn').click();
+addEventListener('hashchange',applyMode);
+
+/* ---------- parent PIN ---------- */
+let pinCb=null,pinNo=null,pinBuf='',lastUnlock=0;
+const trusted=()=>{try{return localStorage.getItem('nphq_trust')===st.pin&&!!st.pin}catch(e){return false}};
+$('#pad').innerHTML=['1','2','3','4','5','6','7','8','9','','0','⌫'].map(k=>k?`<button data-k="${k}" aria-label="${k==='⌫'?'Delete':k}">${k}</button>`:'<span></span>').join('');
+const dots=()=>{$('#pinDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<pinBuf.length?'f':''}"></i>`).join('')};
+function needPin(ok,no){
+  if(!st.pin||trusted()){ok();return}
+  pinCb=ok;pinNo=no||null;pinBuf='';dots();$('#trustIn').checked=false;$('#pinModal').classList.add('open');
+  const f=$('#pad button');if(f)f.focus();
+}
+function closePin(cancel){$('#pinModal').classList.remove('open');const n=pinNo;pinCb=null;pinNo=null;if(cancel&&n)n()}
+function key(k){
+  if(k==='⌫'){pinBuf=pinBuf.slice(0,-1);dots();return}
+  if(pinBuf.length>=4)return;pinBuf+=k;dots();
+  if(pinBuf.length===4){
+    if(pinBuf===st.pin){if($('#trustIn').checked){try{localStorage.setItem('nphq_trust',st.pin)}catch(e){}}const cb=pinCb;lastUnlock=Date.now();closePin(false);if(cb)cb()}
+    else{const sh=$('#pinModal .sheet');sh.classList.remove('shake');void sh.offsetWidth;sh.classList.add('shake');pinBuf='';setTimeout(dots,300)}
+  }
+}
+$('#pad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)key(b.dataset.k)});
+$('#pinModal').addEventListener('keydown',e=>{if(/^[0-9]$/.test(e.key))key(e.key);else if(e.key==='Backspace')key('⌫');else if(e.key==='Escape')closePin(true)});
+$('#pinCancel').onclick=()=>closePin(true);
+
+/* ---------- TV overlays ---------- */
+let msgT=null,cheerT=null,tts=null,voiceOn=false;
+function showMsg(t){
+  $('#msgText').textContent=t;$('#msgOv').classList.add('open');
+  clearTimeout(msgT);msgT=setTimeout(()=>$('#msgOv').classList.remove('open'),30000);
+  if(voiceOn&&tts)tts.speak('Ho ho ho! '+t,{voice:'rounded',rate:.9}).catch(()=>{});
+}
+function celebrate(n){
+  $('#cheerName').textContent=n||'Someone';$('#cheerOv').classList.add('open');
+  clearTimeout(cheerT);cheerT=setTimeout(()=>$('#cheerOv').classList.remove('open'),5000);
+}
+for(const id of ['#msgOv','#cheerOv'])$(id).addEventListener('click',()=>{$(id).classList.remove('open');if(tts)tts.stop&&tts.stop()});
+$('#voiceBtn').onclick=()=>{voiceOn=!voiceOn;const b=$('#voiceBtn');b.classList.toggle('on',voiceOn);b.setAttribute('aria-pressed',voiceOn);b.querySelector('span').textContent=voiceOn?"Santa's voice: on":"Santa's voice";
+  if(voiceOn&&tts)tts.speak('Ho ho ho! Santa’s voice is on.',{voice:'rounded',rate:.9}).catch(()=>{})};
+
+/* ---------- sync between phone and TV ---------- */
+let ref=null,writing=false,pending=null,cur={msg:null,bump:null},seenMsg=Date.now()-5000,seenBump=Date.now()-5000;
+const setSync=t=>{for(const e of document.querySelectorAll('.sync'))e.textContent=t};
+function push(extra){
+  if(extra)Object.assign(cur,extra);
+  if(!ref)return;
+  pending={pin:st.pin||'',family:st.family,kids:st.kids.map(k=>({n:k.n,s:k.s})),sample:!!st.sample,msg:cur.msg,bump:cur.bump};
+  flush();
+}
+async function flush(){
+  if(writing||!pending||!ref)return;writing=true;const b=pending;pending=null;
+  try{await ref.set(b)}catch(e){if(e&&e.code==='unavailable'){pending=pending||b;setTimeout(()=>{writing=false;flush()},800+Math.random()*800);return}
+    if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')){ref=null;setSync('Saved on this screen only')}}
+  writing=false;if(pending)flush();
+}
+(async()=>{
+  const local=()=>setSync(remote?'Saved on this phone only':'Saved on this screen only');
+  try{
+    if(typeof claude==='undefined'||!claude.use){local();return}
+    const [d,u,t]=await Promise.all([claude.use('db'),claude.use('user'),claude.use('tts')]);
+    if(t){tts=t;$('#voiceBtn').hidden=false}
+    if(!d||!u){local();return}
+    const id=await u.id();if(!id){local();return}
+    ref=d.doc('data/users/'+id+'/hq');setSync('Connecting…');
+    const timer=setTimeout(()=>setSync('Can’t reach the North Pole yet'),10000);
+    ref.onSnapshot(snap=>{
+      if(!snap.metadata.fromCache)clearTimeout(timer);
+      setSync('Synced between your phone and TV');
+      if(!snap.exists){if(!snap.metadata.fromCache)push();return}
+      const v=snap.data()||{};
+      if(Array.isArray(v.kids))st.kids=v.kids.slice(0,8).map(k=>({n:String((k&&k.n)||'').slice(0,24),s:Math.max(0,Math.min(100,Math.round(+(k&&k.s)||0)))}));
+      st.family=String(v.family||'').slice(0,40);st.sample=!!v.sample;
+      if(typeof v.pin==='string')st.pin=v.pin.replace(/\D/g,'').slice(0,4);else if(st.pin)push();
+      saveLocal();
+      if(v.msg&&typeof v.msg==='object'){cur.msg={text:String(v.msg.text||'').slice(0,280),at:+v.msg.at||0};if(cur.msg.at>seenMsg){seenMsg=cur.msg.at;if(!remote&&cur.msg.text)showMsg(cur.msg.text)}}
+      if(v.bump&&typeof v.bump==='object'){cur.bump={i:+v.bump.i||0,n:String(v.bump.n||'').slice(0,24),at:+v.bump.at||0};if(cur.bump.at>seenBump){seenBump=cur.bump.at;if(!remote){news=`${cur.bump.n} just moved up the Nice List!`;celebrate(cur.bump.n)}}}
+      renderKids();
+      if(modal.classList.contains('open')&&!modal.contains(document.activeElement))renderIns();
+    },e=>{clearTimeout(timer);ref=null;local()});
+  }catch(e){local()}
+})();
+
+
+/* ---------- full screen + hide buttons when idle ---------- */
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){toast('This browser won’t go full screen. Try its own full-screen option.')}};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').querySelector('span').textContent=document.fullscreenElement?'Exit full screen':'Full screen'});
+let idleT=null;
+const wake=()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{if(!remote&&!modal.classList.contains('open')&&!$('#pinModal').classList.contains('open'))document.body.classList.add('idle')},6000)};
+for(const ev of ['mousemove','keydown','pointerdown','touchstart'])addEventListener(ev,wake,{passive:true});
+wake();
+
+/* ---------- snow ---------- */
+const cv=$('#snow'),cx=cv.getContext('2d');
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W=0,H=0,flakes=[];
+const size=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight;flakes=Array.from({length:Math.min(160,Math.round(W/10))},()=>({x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*3,v:.3+Math.random()*1,w:Math.random()*6}))};
+const snow=()=>{cx.clearRect(0,0,W,H);cx.fillStyle='rgba(255,255,255,.8)';for(const f of flakes){f.y+=f.v;f.w+=.01;f.x+=Math.sin(f.w)*.4;if(f.y>H){f.y=-5;f.x=Math.random()*W}cx.beginPath();cx.arc(f.x,f.y,f.r,0,7);cx.fill()}if(!still)requestAnimationFrame(snow)};
+addEventListener('resize',size);size();snow();
+
+applyMode();renderKids();render();
+setInterval(()=>{if(!preview)render()},1000);
+setInterval(()=>{if(preview)render()},250);
+}
+</script>
+</body>
+</html>

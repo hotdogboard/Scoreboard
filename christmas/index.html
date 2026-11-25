@@ -282,6 +282,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
     <label for="pinIn">Parent PIN (4 digits)</label>
     <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Set a PIN so kids can't change the list">
     <p class="note" id="pinNote" style="margin:0"></p>
+    <div id="afterPin" style="display:grid;gap:14px">
     <label for="arrIn">Santa reaches our house at</label>
     <select id="arrIn"><option value="20">8:00 PM</option><option value="21">9:00 PM</option><option value="22">10:00 PM</option><option value="23">11:00 PM</option><option value="23.5">11:30 PM</option><option value="24">Midnight</option><option value="25">1:00 AM</option><option value="26">2:00 AM</option></select>
     <p class="note" style="margin:0">Pick a time after the kids are asleep. The TV says "Almost here, everyone to bed!" in the hour before.</p>
@@ -292,6 +293,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
     <button id="addKid">+ Add a kid</button>
     <p class="note">Everything is saved on this TV only. Each TV that opens the link keeps its own list.</p>
     <button id="prevBtn">Preview Christmas Eve flight (fast-forward)</button>
+    </div>
     <div class="btns"><button id="resetBtn">Reset everything</button><button id="doneBtn" class="on">Done</button></div>
   </div>
 </div>
@@ -433,8 +435,8 @@ function renderIns(){
   $('#kidIns').innerHTML=st.kids.map((k,i)=>`<div class="row"><input data-k="${i}" value="${esc(k.n)}" aria-label="Kid ${i+1} name"><button data-rm="${i}" aria-label="Remove ${esc(k.n)}">Remove</button></div>`).join('');
 }
 $('#setBtn').onclick=()=>needPin(()=>{$('#famIn').value=st.family;$('#pinIn').value=st.pin||'';$('#arrIn').value=String(st.arrive||23.5);pinNote();renderIns();modal.classList.add('open');$(st.pin?'#famIn':'#pinIn').focus()});
-const pinNote=()=>{$('#pinNote').textContent=st.pin?'Elf mode, Setup and the phone remote now need this PIN.':'No PIN yet: anyone can change the Nice List.'};
-$('#pinIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,4);e.target.value=v;if(v.length===4||v===''){st.pin=v;save();pinNote()}};
+const pinNote=()=>{$('#pinNote').textContent=st.pin?'The gear and the elf hat now need this PIN.':'Choose a 4-digit PIN first. It keeps the kids out of these settings.';$('#afterPin').hidden=!st.pin;$('#resetBtn').hidden=!st.pin};
+$('#pinIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,4);e.target.value=v;if(v.length===4){st.pin=v;save();pinNote();renderIns()}};
 $('#doneBtn').onclick=()=>{modal.classList.remove('open');$('#setBtn').focus()};
 modal.addEventListener('keydown',e=>{if(e.key==='Escape')$('#doneBtn').click()});
 $('#arrIn').onchange=e=>{st.arrive=+e.target.value;save();lastYear=null;render()};
@@ -450,7 +452,7 @@ $('#prevBtn').onclick=()=>{
 };
 let elfT=null;
 const setElf=on=>{st.parent=on;clearTimeout(elfT);if(on)elfT=setTimeout(()=>setElf(false),180000);renderKids()};
-$('#parentBtn').onclick=()=>{if(st.parent)setElf(false);else needPin(()=>setElf(true))};
+$('#parentBtn').onclick=()=>{if(!st.pin){$('#setBtn').click();return}if(st.parent)setElf(false);else needPin(()=>setElf(true))};
 
 
 /* ---------- remote (phone) ---------- */

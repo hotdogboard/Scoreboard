@@ -38,6 +38,31 @@ button.on{background:var(--red);border-color:var(--red)}
 .ico{width:clamp(48px,3.4vw,80px);height:clamp(48px,3.4vw,80px);padding:0;justify-content:center;border-radius:50%}
 .ico svg{width:62%;height:62%}
 #parentBtn.on{background:var(--gold);border-color:#fff}
+#advBtn{position:relative}
+#advBtn .badge{position:absolute;top:2px;right:2px;width:30%;height:30%;border-radius:50%;background:var(--gold);border:2px solid var(--bg);display:none}
+#advBtn.new .badge{display:block;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.35)}}
+.advbox{width:min(1500px,100%);max-height:92vh;overflow:auto;background:var(--bg2);border:2px solid var(--line);border-radius:clamp(18px,1.6vw,36px);padding:clamp(16px,2vw,44px);display:grid;gap:clamp(12px,1.2vw,26px);animation:drop .6s cubic-bezier(.2,1.3,.4,1)}
+.advtop{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.advtop h2{font-size:clamp(32px,3.4vw,84px)}
+.doors{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:clamp(8px,.9vw,20px)}
+.door{aspect-ratio:1;min-height:0;border-radius:clamp(12px,1vw,22px);padding:0;justify-content:center;font-family:"Mountains of Christmas",cursive;font-weight:700;font-size:clamp(30px,3.2vw,80px);border:3px solid rgba(255,255,255,.25);box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)}
+.door:nth-child(3n+1){background:#c92a36}.door:nth-child(3n+2){background:#1f8a57}.door:nth-child(3n){background:#b8862a}
+.door.locked{opacity:.38;cursor:default}
+.door.today{border-color:var(--gold);animation:pulse2 1.4s ease-in-out infinite}
+@keyframes pulse2{50%{box-shadow:0 0 0 6px var(--gold),inset 0 -6px 0 rgba(0,0,0,.18)}}
+.door.done{background:#2a3d6e!important}
+.door.done svg{width:45%;height:45%}
+.reveal{display:grid;gap:clamp(12px,1.4vw,30px);text-align:center;padding:clamp(6px,1vw,20px)}
+.reveal .day{font-family:"Mountains of Christmas",cursive;color:var(--gold);font-size:clamp(34px,3.6vw,90px);line-height:1}
+.reveal .q{font-size:clamp(28px,3.2vw,82px);font-weight:600;line-height:1.15;text-wrap:balance}
+.reveal .a{font-size:clamp(30px,3.6vw,92px);font-weight:700;color:var(--gold);line-height:1.1}
+.mission{background:var(--red);border-radius:clamp(14px,1.2vw,28px);padding:clamp(14px,1.4vw,32px)}
+.mission small{display:block;font-size:clamp(16px,1.2vw,30px);opacity:.9}
+.mission b{font-size:clamp(24px,2.6vw,66px);line-height:1.15;font-weight:600}
+.reveal .row2{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.reveal button{font-size:clamp(18px,1.4vw,34px);min-height:56px;padding:.4em 1.4em}
+@media(max-width:700px){.doors{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .count{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:clamp(14px,2.5vw,60px);background:linear-gradient(90deg,var(--red),#b81f2c);border-radius:clamp(16px,1.5vw,32px);padding:clamp(12px,1.1vw,30px) clamp(18px,2.4vw,56px);box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25)}
 .sleeps{display:flex;align-items:baseline;gap:.25em;white-space:nowrap}
@@ -148,6 +173,7 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
       <button id="fsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Full screen</span></button>
       <button id="voiceBtn" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9Z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Santa's voice</span></button>
       <button id="remoteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Phone remote</span></button>
+      <button id="advBtn" class="ico" title="Advent calendar"><svg viewBox="0 0 32 32"><rect x="5" y="13" width="22" height="15" rx="2" fill="#e2333f"/><rect x="3.5" y="9" width="25" height="6" rx="2" fill="#ff4b57"/><rect x="14" y="9" width="4" height="19" fill="#f6c64e"/><path d="M16 9c-2-5-8-6-8-2.5S13 9 16 9Zm0 0c2-5 8-6 8-2.5S19 9 16 9Z" fill="#f6c64e"/></svg><span class="badge"></span><span class="sr">Advent calendar</span></button>
       <button id="parentBtn" class="ico" aria-pressed="false" title="Elf mode"><svg viewBox="0 0 32 32"><path d="M6 24 C9 15 13 8 21 4 C19 9 20 14 25 19 L26 24Z" fill="#2fa86b"/><path d="M21 4 C19 9 20 14 25 19 L26 24 L22 24 C19 18 18 11 21 4Z" fill="#1f7f4f"/><circle cx="21" cy="4" r="3" fill="#f6c64e"/><rect x="4" y="23" width="24" height="5" rx="2.5" fill="#e2333f"/><path d="M5.5 24.2h21" stroke="#ff8a8f" stroke-width="1.2" stroke-linecap="round"/></svg><span class="sr">Elf mode</span></button>
       <button id="setBtn" class="ico" title="Setup"><svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.8c.1.6.1 1.3 0 1.9l2 1.8-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.8a6 6 0 0 1 0-1.9l-2-1.8 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9ZM12 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Z" transform="translate(0 1.5) scale(1 .92)"/></svg><span class="sr">Setup</span></button>
     </div>
@@ -236,6 +262,10 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 <div class="ov" id="cheerOv" aria-live="polite"><div class="cheer">
   <svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" fill="#f6c64e" stroke="#fff6d8" stroke-width=".6"/></svg>
   <b id="cheerName"></b><span>moved up the Nice List!</span>
+</div></div>
+<div class="ov" id="advOv" role="dialog" aria-modal="true" aria-label="Advent calendar"><div class="advbox">
+  <div class="advtop"><h2 id="advTitle">Advent Calendar</h2><button id="advClose" class="ico" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div id="advBody"></div>
 </div></div>
 <div class="toast" id="toast"></div>
 <div class="modal" id="pinModal" role="dialog" aria-modal="true" aria-labelledby="pinTitle"><div class="sheet" style="width:min(400px,100%)">
@@ -526,11 +556,71 @@ async function flush(){
 })();
 
 
+
+/* ---------- advent calendar ---------- */
+const ADV=[
+['What do snowmen eat for breakfast?','Frosted Flakes!','Do your best snowman pose and freeze for 10 seconds.'],
+['What do you call an elf who sings?','A wrapper!','Everyone sing Jingle Bells together.'],
+['Why was the snowman looking through the carrots?','He was picking his nose!','Make the silliest face you can.'],
+['What does Santa say when he works in the garden?','Hoe, hoe, hoe!','Tell everyone one thing you are thankful for.'],
+['What is a reindeer’s favorite game?','Stable tennis!','Have a 1-minute dance party.'],
+['What do you call a cat on the beach at Christmas?','Sandy Claws!','Draw a picture for Santa.'],
+['How does a snowman get around?','By riding an icicle!','Give someone in your family a big hug.'],
+['What did one snowman say to the other?','Do you smell carrots?','Prance around the room like reindeer.'],
+['What do elves learn in school?','The elf-abet!','Say the alphabet together as fast as you can.'],
+['Why does Santa go down the chimney?','Because it soots him!','Play freeze dance.'],
+['What kind of photos do elves take?','Elfies!','Take a silly family selfie.'],
+['What falls all winter but never gets hurt?','Snow!','Do something kind for a brother or sister.'],
+['What do you get if you cross a snowman and a dog?','Frostbite!','Make up a Christmas joke of your own.'],
+['Who brings presents to baby sharks?','Santa Jaws!','Try to make the baby laugh.'],
+['What do gingerbread kids sleep on?','Cookie sheets!','Help clean up one room.'],
+['Why did Rudolph get a bad report card?','He went down in history!','Count all the lights you can see on the tree.'],
+['What do snowmen call their kids?','Chill-dren!','Whisper your Christmas wish to someone.'],
+['Why is it so cold at Christmas?','Because it’s Decem-brrr!','Shiver like a snowman, then do 10 jumping jacks to warm up.'],
+['What did the Christmas tree say to the ornament?','Quit hanging around!','Find your favorite ornament and tell everyone why.'],
+['What do reindeer hang on their trees?','Horn-aments!','Play I Spy with something red or green.'],
+['What goes “Oh, oh, oh”?','Santa walking backwards!','Walk backwards across the room.'],
+['How do you know Santa is good at karate?','He has a black belt!','Show off your best karate kick.'],
+['Where does Santa keep his money?','In a snow bank!','Tell a Christmas story before bed.'],
+['Why did Santa’s helper go to the doctor?','He had low elf-esteem!','Leave out cookies for Santa and carrots for the reindeer.']];
+const ADVKEY='nphq_adv';
+let opened=[];try{opened=JSON.parse(localStorage.getItem(ADVKEY))||[]}catch(e){}
+const saveAdv=()=>{try{localStorage.setItem(ADVKEY,JSON.stringify(opened))}catch(e){}};
+const advToday=()=>{const d=now();return d.getMonth()===11?Math.min(d.getDate(),25):0};
+const advId=n=>xmasFor(now()).getFullYear()+'-'+n;
+const checkSvg='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" fill="#f6c64e"/></svg>';
+function advBadge(){const t=advToday();$('#advBtn').classList.toggle('new',t>=1&&t<=24&&!opened.includes(advId(t)))}
+function showDoors(){
+  const t=advToday();
+  $('#advTitle').textContent=t===0?'Advent Calendar: opens December 1':t>24?'Merry Christmas!':'Advent Calendar';
+  $('#advBody').innerHTML='<div class="doors">'+ADV.map((_,i)=>{const n=i+1,lock=n>t,done=opened.includes(advId(n));
+    return `<button class="door${lock?' locked':''}${n===t&&!done?' today':''}${done?' done':''}" data-n="${n}" aria-label="Day ${n}${lock?', locked':''}"${lock?' aria-disabled="true"':''}>${done?checkSvg:n}</button>`}).join('')+'</div>';
+  const f=$('.door.today')||$('.door:not(.locked)')||$('#advClose');f.focus();
+}
+function showDay(n){
+  const [q,a,m]=ADV[n-1];
+  if(!opened.includes(advId(n))){opened.push(advId(n));saveAdv();advBadge()}
+  $('#advTitle').textContent='Advent Calendar';
+  $('#advBody').innerHTML=`<div class="reveal"><div class="day">December ${n}</div><div class="q">${esc(q)}</div>
+    <div class="a" id="ans" hidden>${esc(a)}</div>
+    <div class="mission" id="mis" hidden><small>Today's mission</small><b>${esc(m)}</b></div>
+    <div class="row2"><button id="ansBtn" class="on">Tell me!</button><button id="backBtn">All doors</button></div></div>`;
+  $('#ansBtn').onclick=()=>{$('#ans').hidden=false;$('#mis').hidden=false;$('#ansBtn').hidden=true;$('#backBtn').focus()};
+  $('#backBtn').onclick=showDoors;$('#ansBtn').focus();
+}
+$('#advBody').addEventListener('click',e=>{const d=e.target.closest('.door');if(!d||d.classList.contains('locked'))return;showDay(+d.dataset.n)});
+$('#advBtn').onclick=()=>{$('#advOv').classList.add('open');showDoors()};
+const closeAdv=()=>{$('#advOv').classList.remove('open');$('#advBtn').focus()};
+$('#advClose').onclick=closeAdv;
+$('#advOv').addEventListener('keydown',e=>{if(e.key==='Escape')closeAdv()});
+$('#advOv').addEventListener('click',e=>{if(e.target.id==='advOv')closeAdv()});
+advBadge();setInterval(advBadge,60000);
+
 /* ---------- full screen + hide buttons when idle ---------- */
 $('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){toast('This browser won’t go full screen. Try its own full-screen option.')}};
 document.addEventListener('fullscreenchange',()=>{$('#fsBtn').querySelector('span').textContent=document.fullscreenElement?'Exit full screen':'Full screen'});
 let idleT=null;
-const wake=()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{if(!remote&&!modal.classList.contains('open')&&!$('#pinModal').classList.contains('open'))document.body.classList.add('idle')},6000)};
+const wake=()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{if(!remote&&!modal.classList.contains('open')&&!$('#advOv').classList.contains('open')&&!$('#pinModal').classList.contains('open'))document.body.classList.add('idle')},6000)};
 for(const ev of ['mousemove','keydown','pointerdown','touchstart'])addEventListener(ev,wake,{passive:true});
 wake();
 

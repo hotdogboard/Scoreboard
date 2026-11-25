@@ -245,7 +245,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v13';
+const VER='v14';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -525,17 +525,18 @@ function render(){
   buildCrawl(all);
 }
 const curView=()=>cur.k==='p'?pages[cur.i]:extras[cur.i];
-// scores first: one table between rounds ("A little"), every table ("A lot"), or none
+// scores first. "A little": a table on a timer (90 s with live games, 45 s without), then scores resume where they left off.
+// "A lot": every table after each full round of scores.
+let lastTable=Date.now(),resumeAt=0;
 function advance(){
-  if(cur.k==='p'&&cur.i+1<pages.length)cur.i++;
-  else if(cur.k==='p'){
-    cycle++;
-    const live=Object.values(games).flat().some(g=>g.state==='in');
-    const m=cfg.stand;
-    if(extras.length&&(m==='all'||(m==='light'&&(!live||cycle%2===0))))cur={k:'x',i:m==='all'?0:(xIdx++%extras.length)};
-    else cur={k:'p',i:0};
-  }else if(cfg.stand==='all'&&cur.i+1<extras.length)cur.i++;
-  else cur={k:'p',i:0};
+  const live=Object.values(games).flat().some(g=>g.state==='in'),m=cfg.stand;
+  if(cur.k==='p'){
+    const next=(cur.i+1)%pages.length;
+    if(m==='light'&&extras.length&&Date.now()-lastTable>=(live?90e3:45e3)){resumeAt=next;cur={k:'x',i:xIdx++%extras.length}}
+    else if(m==='all'&&extras.length&&next===0)cur={k:'x',i:0};
+    else cur.i=next;
+  }else if(m==='all'&&cur.i+1<extras.length)cur.i++;
+  else{cur={k:'p',i:m==='all'?0:resumeAt};lastTable=Date.now()}
   drawView(true);schedule();
 }
 function schedule(){clearTimeout(vTimer);const v=curView();vTimer=setTimeout(advance,((v&&v.t)||20)*(+cfg.pace||1)*1000)}

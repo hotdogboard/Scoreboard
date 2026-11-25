@@ -625,7 +625,7 @@ function applyCrawl(h){
   track.innerHTML=`<div class="seg">${seg}</div><div class="seg" aria-hidden="true">${seg}</div>`;
   const px=(w*reps)/(innerHeight/1080);
   track.style.animation='none';track.offsetWidth;track.style.animation='';
-  track.style.animationDuration=Math.max(15,px/cfg.speed)+'s';
+  track.style.animationDuration=Math.max(8,px/(cfg.speed*1.7))+'s';
 }
 track.addEventListener('animationiteration',()=>{if(pendingCrawl)applyCrawl(pendingCrawl)});
 

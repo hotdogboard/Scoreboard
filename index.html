@@ -254,7 +254,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v16';
+const VER='v17';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -562,7 +562,9 @@ function drawView(anim){
     st.innerHTML=`<div class="heroes${hs.length>1?' two':''}" style="--h:${hs.length}">${hs.map(heroCard).join('')}</div>`+
       (v.games.length?`<div class="strip">${v.games.map(card).join('')}</div>`:'');
   }else if(v.k==='scores'){
-    setTitle(live?`${live} game${live>1?'s':''} live now`:v.games.length?'Today’s games':'Scores');
+    const td=new Date().toDateString(),gs=all.filter(g=>relevant(g,isFav(g)));
+    const isToday=g=>g.date.toDateString()===td,later=gs.some(g=>g.state==='pre'&&!isToday(g)),done=gs.some(g=>g.state==='post');
+    setTitle(live?`${live} game${live>1?'s':''} live now`:!gs.length?'Scores':gs.every(isToday)?'Today’s games':done&&later?'Recent and upcoming':later?'Coming up':'Recent results');
     const n=v.games.length,port=innerWidth<innerHeight;
     const cols=port?(n<=2?1:2):(n<=2?n||1:n<=4?2:4),rows=port?Math.min(3,Math.ceil(n/cols))||1:(n<=2?1:2);
     st.innerHTML=`<div class="wall${!port&&n&&n<=4?' big':''}" style="--cols:${cols};--rows:${rows}">${n?v.games.map(card).join(''):'<div class="empty">No games right now in your leagues.<br>The crawl keeps the headlines coming.</div>'}</div>`;

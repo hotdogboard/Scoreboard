@@ -20,7 +20,11 @@ html,body{height:100%}
 body{margin:0;background:radial-gradient(90% 70% at 15% -10%,var(--glow),transparent 70%),var(--bg);color:var(--ink);font:1rem/1.35 Inter,system-ui,sans-serif;overflow:hidden;cursor:default}
 .app{height:100vh;display:grid;grid-template-rows:auto 1fr auto;transition:transform 2s}
 header{display:flex;align-items:center;gap:1.4rem;padding:1.1rem 2.2rem;border-bottom:1px solid var(--line)}
-.brand{font:700 2.2rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.02em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini{flex:1;display:flex;gap:.8rem;justify-content:center;overflow:hidden;animation:fade .5s}
+.chip{flex:none;display:flex;align-items:center;gap:.6rem;padding:.35rem 1rem .35rem .4rem;border-radius:2rem;background:var(--panel);border:1px solid var(--line);font:700 1.55rem/1.1 "Barlow Condensed",sans-serif;white-space:nowrap}
+.chip .lg{font-size:1.05rem}.chip i{font-style:normal;font-weight:600;font-size:1.2rem;color:var(--dim)}.chip.lv i{color:var(--live)}
+.chip.close{border-color:var(--warn)}.chip.fav{border-color:color-mix(in srgb,var(--red) 70%,transparent)}
+.brand{font:700 2.2rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.02em;flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand span{color:var(--red)}
 .wx,.clock{font-family:"Barlow Condensed",sans-serif;white-space:nowrap}
 .wx{font-size:1.6rem;color:var(--dim)}.wx b{color:var(--ink);font-weight:600}
@@ -165,6 +169,7 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
 <div class="app" id="app">
   <header>
     <div class="brand" id="brand">Man <span>Cave</span></div>
+    <div class="mini" id="mini"></div>
     <div class="wx" id="wx"></div>
     <div class="clock" id="clock"></div>
     <button class="gear" id="gear" type="button">Settings</button>
@@ -238,7 +243,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v8';
+const VER='v9';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -553,8 +558,25 @@ function drawView(anim){
   }
   $('dots').innerHTML=cur.k==='p'&&pages.length>1?pages.map((_,i)=>`<i class="${i===cur.i?'on':''}"></i>`).join(''):'';
   if(anim){st.style.animation='none';st.offsetWidth;st.style.animation=''}
+  updateMini(false);
   tick();
 }
+// score chips in the top line while a standings/rankings table is up
+let miniIdx=0;
+function updateMini(step){
+  const v=curView(),el=$('mini');
+  if(!v||(v.k!=='stand'&&v.k!=='rank')){if(el.innerHTML)el.innerHTML='';return}
+  const all=Object.values(games).flat();
+  let gs=all.filter(g=>g.state==='in');
+  if(!gs.length)gs=all.filter(g=>relevant(g,isFav(g)));
+  gs.sort(sortG);
+  const per=$('wx').textContent?3:4,n=Math.ceil(gs.length/per)||1;
+  if(step)miniIdx=(miniIdx+1)%n;else if(miniIdx>=n)miniIdx=0;
+  el.innerHTML=gs.slice(miniIdx*per,miniIdx*per+per).map(g=>{const pre=g.state==='pre';
+    return`<span class="chip${g.state==='in'?' lv':''}${isFav(g)?' fav':''}${isClose(g)?' close':''}"><span class="lg">${esc(g.lg.label)}</span>${esc(g.away.abbr)}${pre?'':' '+esc(g.away.score)} ${pre?'at ':''}${esc(g.home.abbr)}${pre?'':' '+esc(g.home.score)}<i>${esc(statusText(g))}</i></span>`}).join('');
+  if(step){el.style.animation='none';el.offsetWidth;el.style.animation=''}
+}
+setInterval(()=>updateMini(true),5000);
 function rankName(t){return(t.rank?`<sup>${t.rank}</sup>`:'')+esc(t.abbr)}
 const loses=(t,g)=>g.state==='post'&&!t.winner&&(g.away.winner||g.home.winner);
 function card(g){

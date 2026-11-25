@@ -195,7 +195,7 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
       <div class="f"><label for="sSize">Text size</label>
         <select id="sSize"><option value="1">Normal</option><option value="1.15">Large</option><option value="1.3">Extra large</option></select></div>
       <div class="f"><label for="sSpeed">Crawl speed</label>
-        <select id="sSpeed"><option value="110">Slow</option><option value="160">Medium</option><option value="220">Fast</option><option value="300">Very fast</option></select></div>
+        <select id="sSpeed"><option value="20">Very slow</option><option value="15">Slow</option><option value="12">Medium</option><option value="9">Fast</option><option value="7">Very fast</option></select></div>
       <div class="f"><label for="sPace">Page speed</label>
         <select id="sPace"><option value="1.4">Relaxed</option><option value="1">Normal</option><option value="0.7">Quick</option></select>
         <small>How long each page of scores stays up (Normal is 20 seconds).</small></div>
@@ -236,12 +236,12 @@ const LEAGUES=[
 ];
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
-const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',speed:160,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
+const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v11';
+const VER='v12';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -252,7 +252,7 @@ const closeSeen=new Set(),toastQ=[];let toastOn=false,wantJump=false;
 function load(){
   let c={...DEF};
   try{const sv=JSON.parse(localStorage.getItem('ticker-cfg')||'{}');Object.assign(c,sv);
-    if(sv.speed&&!sv.v2)c.speed={70:110,110:160,160:220}[sv.speed]||c.speed;}catch(e){}
+    if(!sv.crawl&&sv.speed)c.crawl={70:20,110:15,160:12,220:9,300:7}[sv.speed]||12;}catch(e){}
   if(/^\s*DET\s*,\s*MSU\s*$/i.test(c.favs||''))c.favs='nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU';
   if(typeof c.stand==='boolean')c.stand=c.stand?'light':'off';
   if(!['light','all','off'].includes(c.stand))c.stand='light';c.v2=1;
@@ -650,7 +650,7 @@ function applyCrawl(h){
 function crawlFrame(t){
   const dt=lastT?Math.min(.5,(t-lastT)/1000):0;lastT=t;
   if(segW>0){
-    cx-=innerWidth*cfg.speed*1.7/1920*dt;   // Medium ≈ one screen width every 7 s
+    cx-=innerWidth/(+cfg.crawl||12)*dt;   // crawl = seconds to cross the screen
     if(-cx>=segW){cx+=segW;if(pendingCrawl)applyCrawl(pendingCrawl);else measure()}
     track.style.transform=`translate3d(${cx.toFixed(1)}px,0,0)`;
   }
@@ -680,7 +680,7 @@ $('sLeagues').innerHTML=LEAGUES.map(l=>`<label><input type="checkbox" value="${l
 const CHK={sNews:'news',sOdds:'odds',sCele:'cele',sTake:'take'};
 function openSettings(){
   $('sFavs').value=cfg.favs;$('sCity').value=cfg.city;
-  $('sSkin').value=cfg.skin||'midnight';$('sStand').value=cfg.stand;$('sPace').value=String(cfg.pace||1);$('sSpeed').value=String(cfg.speed);$('sSize').value=String(cfg.size);$('sDelay').value=String(cfg.delay);
+  $('sSkin').value=cfg.skin||'midnight';$('sStand').value=cfg.stand;$('sPace').value=String(cfg.pace||1);$('sSpeed').value=String(cfg.crawl);$('sSize').value=String(cfg.size);$('sDelay').value=String(cfg.delay);
   for(const k in CHK)$(k).checked=!!cfg[CHK[k]];
   for(const c of $('sLeagues').querySelectorAll('input'))c.checked=cfg.leagues.includes(c.value);
   if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
@@ -690,7 +690,7 @@ $('gear').addEventListener('click',openSettings);
 $('cancel').addEventListener('click',closeSettings);
 $('save').addEventListener('click',()=>{
   cfg={v2:1,pace:+$('sPace').value||1,stand:$('sStand').value,skin:$('sSkin').value,favs:$('sFavs').value,city:$('sCity').value.trim(),
-    speed:+$('sSpeed').value||110,size:+$('sSize').value||1,delay:+$('sDelay').value||0,
+    crawl:+$('sSpeed').value||12,size:+$('sSize').value||1,delay:+$('sDelay').value||0,
     leagues:[...$('sLeagues').querySelectorAll('input:checked')].map(c=>c.value)};
   for(const k in CHK)cfg[CHK[k]]=$(k).checked;
   save();closeSettings();applyLook();crawlHtml='';heroSig=null;

@@ -41,8 +41,8 @@ main{padding:1.4rem 2.2rem 1rem;display:flex;flex-direction:column;gap:1rem;over
 .card.close.live::after{background:var(--warn)}
 .cl{background:var(--warn);color:#1f1500;padding:.05rem .6rem;border-radius:2rem;font-style:normal}
 .g .cl{margin-right:.7rem;font-size:.75em;vertical-align:.15em}
-.toast{position:fixed;top:1.2rem;left:50%;transform:translate(-50%,-180%);z-index:40;display:flex;gap:1rem;align-items:center;padding:.6rem 1.6rem .6rem .7rem;border-radius:3rem;background:color-mix(in srgb,var(--bg) 85%,#000);border:1px solid var(--warn);box-shadow:0 1rem 2.4rem -1rem #000;font:700 1.9rem "Barlow Condensed",sans-serif;white-space:nowrap;transition:transform .5s cubic-bezier(.2,1.2,.4,1)}
-.toast.on{transform:translate(-50%,0)}
+.toast{position:fixed;top:1.2rem;left:50%;transform:translate(-50%,-180%);z-index:40;display:flex;gap:1rem;align-items:center;padding:.6rem 1.6rem .6rem .7rem;border-radius:3rem;background:color-mix(in srgb,var(--bg) 85%,#000);border:1px solid var(--warn);box-shadow:0 1rem 2.4rem -1rem #000;font:700 1.9rem "Barlow Condensed",sans-serif;white-space:nowrap;opacity:0;transition:transform .5s cubic-bezier(.2,1.2,.4,1),opacity .4s}
+.toast.on{transform:translate(-50%,0);opacity:1}
 .toast b{background:var(--warn);color:#1f1500;padding:.05rem .8rem;border-radius:2rem}
 .toast i{font-style:normal;color:var(--dim);font-weight:600}
 .card.live::after{content:"";position:absolute;inset:0 0 auto;height:.3rem;background:var(--live)}
@@ -63,18 +63,18 @@ sup{font-size:.5em;color:var(--dim);margin-right:.3rem;vertical-align:super}
 .empty{grid-column:1/-1;grid-row:1/-1;display:grid;place-items:center;color:var(--dim);font:600 2rem "Barlow Condensed",sans-serif;text-align:center}
 /* takeover */
 .heroes{flex:1.7;display:grid;grid-template-columns:repeat(var(--h,1),minmax(0,1fr));gap:1.1rem}
-.hero{border-radius:1.4rem;padding:1.4rem 2rem;display:flex;flex-direction:column;justify-content:center;gap:.9rem;position:relative;overflow:hidden;border:1px solid var(--line);
+.hero{border-radius:1.4rem;padding:1.2rem 2rem;display:flex;flex-direction:column;justify-content:center;gap:.9rem;position:relative;overflow:hidden;border:1px solid var(--line);
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--fc) 55%,transparent),transparent 60%),linear-gradient(160deg,color-mix(in srgb,var(--ink) 7%,var(--bg)),var(--bg))}
 .hero .top{display:flex;gap:1rem;align-items:center;font:700 1.5rem "Barlow Condensed",sans-serif;white-space:nowrap}
 .hero .gd{background:var(--ink);color:var(--bg);padding:.05rem .7rem;border-radius:2rem}
 .hero .top .st{color:var(--live)}.hero.pre .top .st{color:var(--ink)}
 .hero .top .net{margin-left:auto;color:var(--dim)}
-.ht{display:grid;grid-template-columns:.6rem 5.5rem minmax(0,1fr) auto;align-items:center;gap:1.2rem}
-.ht .bar{width:.6rem;height:5.5rem;border-radius:.3rem;background:var(--c)}
-.ht img{width:5.5rem;height:5.5rem;object-fit:contain;filter:drop-shadow(0 .3rem .6rem #0008)}
-.ht .nm{font:800 4.4rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ht{display:grid;grid-template-columns:.6rem 4.6rem minmax(0,1fr) auto;align-items:center;gap:1.2rem}
+.ht .bar{width:.6rem;height:4.6rem;border-radius:.3rem;background:var(--c)}
+.ht img{width:4.6rem;height:4.6rem;object-fit:contain;filter:drop-shadow(0 .3rem .6rem #0008)}
+.ht .nm{font:800 3.9rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ht .nm small{font:500 1.3rem Inter,sans-serif;color:var(--dim);text-transform:none;margin-left:.8rem}
-.ht .sc{font:800 6.4rem/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
+.ht .sc{font:800 5.6rem/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
 .ht .pos{display:inline-block;width:1.4rem;height:.9rem;border-radius:50%;background:#a0522d;border:.15rem solid #fff;margin-left:.8rem;vertical-align:middle}
 .ht.lose .nm,.ht.lose .sc{color:var(--dim)}
 .sit{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;align-items:center;font:600 1.7rem "Barlow Condensed",sans-serif}
@@ -82,6 +82,21 @@ sup{font-size:.5em;color:var(--dim);margin-right:.3rem;vertical-align:super}
 .sit .lp{font:400 1.2rem Inter,sans-serif;color:#cfcfd8;flex-basis:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sit .cd{font-size:2.4rem;font-variant-numeric:tabular-nums}
 .heroes.two .ht{grid-template-columns:.5rem 4rem minmax(0,1fr) auto}.heroes.two .ht img{width:4rem;height:4rem}.heroes.two .ht .bar{height:4rem;width:.5rem}.heroes.two .ht .nm{font-size:3rem}.heroes.two .ht .sc{font-size:4.6rem}.heroes.two .sit{font-size:1.4rem}
+.hb{flex:1;display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:2.2rem;align-items:center}
+.hb.solo,.heroes.two .hb{grid-template-columns:minmax(0,1fr)}
+.hm{display:flex;flex-direction:column;gap:.9rem;justify-content:center}
+.wp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.4rem 1rem;font:700 1.6rem "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wp .wl{grid-column:1/-1;font:600 1rem Inter,sans-serif;color:var(--dim)}
+.wb{display:flex;height:1.1rem;border-radius:1rem;overflow:hidden;background:var(--line);box-shadow:0 0 0 1px var(--line)}
+.wb i{transition:flex 1.2s ease}.wb i+i{border-left:.15rem solid var(--bg)}.wb .tie{background:var(--dim)}
+.ldr{display:flex;flex-direction:column;gap:1.4rem;padding-left:2.2rem;border-left:1px solid var(--line)}
+.lt b{display:flex;align-items:center;gap:.6rem;font:700 1.25rem "Barlow Condensed",sans-serif;color:var(--dim);text-transform:uppercase;margin-bottom:.3rem}
+.lt b::before{content:"";width:.8rem;height:.8rem;border-radius:50%;background:var(--c)}
+.lr{display:grid;grid-template-columns:3.2rem minmax(0,1fr) auto;gap:.8rem;align-items:baseline;font:600 1.55rem/1.35 "Barlow Condensed",sans-serif}
+.lr .lc{color:var(--dim);font-size:1.1rem;text-transform:uppercase}
+.lr .lw{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lr .lv{white-space:nowrap}
+.heroes.two .ldr{border-left:0;padding-left:0;flex-direction:row;gap:1.6rem}.heroes.two .lt{flex:1;min-width:0}.heroes.two .lr:nth-child(n+3){display:none}.heroes.two .sit .lp{display:none}
+.strip .card{padding:.7rem 1.1rem;gap:.35rem}.strip .odds{display:none}
 .strip{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.1rem}
 /* tables */
 .tbl{flex:1;display:grid;grid-template-columns:repeat(var(--tc,1),minmax(0,1fr));gap:0 3rem;align-content:start}
@@ -218,7 +233,7 @@ const LEAGUES=[
 ];
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
-const DEF={skin:'midnight',name:'Man Cave',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'DET, MSU',city:'',speed:160,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
+const DEF={skin:'midnight',name:'Man Cave',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',speed:160,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
@@ -227,12 +242,14 @@ const demo=/[?&]demo\b/.test(location.search);
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
 let pages=[],extras=[],cur={k:'p',i:0},cycle=0,xIdx=0,vTimer=null,crawlHtml='',pendingCrawl=null,heroSig=null,heroNow=[];
+const summ={},summAt={};
 const closeSeen=new Set(),toastQ=[];let toastOn=false,wantJump=false;
 
 function load(){
   let c={...DEF};
   try{const sv=JSON.parse(localStorage.getItem('ticker-cfg')||'{}');Object.assign(c,sv);
     if(sv.speed&&!sv.v2)c.speed={70:110,110:160,160:220}[sv.speed]||c.speed;}catch(e){}
+  if(/^\s*DET\s*,\s*MSU\s*$/i.test(c.favs||''))c.favs='nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU';
   if(typeof c.stand==='boolean')c.stand=c.stand?'light':'off';
   if(!['light','all','off'].includes(c.stand))c.stand='light';c.v2=1;
   const q=new URLSearchParams(location.search);
@@ -285,6 +302,27 @@ async function loadScores(force){
   $('upd').textContent='Scores updated '+fmtTime(new Date());
   render();
   if(wantJump){wantJump=false;jumpToScores()}
+  loadSummaries();
+}
+// win probability + stat leaders for the takeover games
+function parseSummary(j){
+  let wp=null;const w=j.winprobability;
+  if(Array.isArray(w)&&w.length){const x=w[w.length-1],h=+x.homeWinPercentage*100,t=+(x.tiePercentage||0)*100;if(!isNaN(h))wp={h,t,a:Math.max(0,100-h-t),live:true}}
+  else if(j.predictor){const h=parseFloat(j.predictor.homeTeam&&j.predictor.homeTeam.gameProjection),a=parseFloat(j.predictor.awayTeam&&j.predictor.awayTeam.gameProjection);
+    if(!isNaN(h)){const aa=isNaN(a)?100-h:a;wp={h,a:aa,t:Math.max(0,100-h-aa),live:false}}}
+  const leaders=(j.leaders||[]).map(t=>({abbr:(t.team&&t.team.abbreviation)||'',cats:(t.leaders||[]).slice(0,3).map(c=>{const l=(c.leaders||[])[0]||{},a=l.athlete||{};
+    return{label:c.displayName||c.name||'',who:a.shortName||a.displayName||'',val:l.displayValue||''}}).filter(c=>c.who)})).filter(t=>t.cats.length);
+  return{wp,leaders};
+}
+async function loadSummaries(){
+  if(demo||!heroNow.length)return;
+  await Promise.all(heroNow.map(async g=>{
+    const every=g.state==='in'?25e3:5*60e3;
+    if(summAt[g.id]&&Date.now()-summAt[g.id]<every)return;
+    summAt[g.id]=Date.now();
+    try{summ[g.id]=parseSummary(await getJSON(API+g.lg.path+'/summary?event='+encodeURIComponent(g.id)))}catch(e){}
+  }));
+  const v=curView();if(v&&v.k==='take')drawView(false);
 }
 async function loadNews(){
   if(demo)return;
@@ -542,9 +580,17 @@ function heroCard(g){
     if(g.lg.sport==='baseball'&&s.outs!=null){const b=['1st','2nd','3rd'].filter((_,i)=>s.on[i]);sit+=`<span>${esc(s.outs)} out${s.outs==1?'':'s'}${b.length?' · on '+b.join(', '):''}</span>`}
     if(s.lp)sit+=`<span class="lp">Last play: ${esc(s.lp)}</span>`;
   }
+  const sm=summ[g.id]||{},w=sm.wp;
+  const pct=x=>Math.round(x)+'%';
+  const wp=w?`<div class="wp"><span class="wl">${w.live?'Win probability':'Pregame chance to win'}</span>
+    <span>${esc(g.away.abbr)} ${pct(w.a)}</span><div class="wb"><i style="flex:${w.a};background:${esc(g.away.color)}"></i>${w.t>=1?`<i class="tie" style="flex:${w.t}"></i>`:''}<i style="flex:${w.h};background:${esc(g.home.color)}"></i></div><span>${pct(w.h)} ${esc(g.home.abbr)}</span></div>`:'';
+  const SH={'Passing Yards':'Pass','Rushing Yards':'Rush','Receiving Yards':'Rec','Points':'Pts','Rebounds':'Reb','Assists':'Ast','Goals':'G','Saves':'SV','Hits':'H','Home Runs':'HR','RBIs':'RBI'};
+  const tc=a=>(g.away.abbr===a?g.away:g.home).color;
+  const ldr=sm.leaders&&sm.leaders.length?`<div class="ldr">${sm.leaders.map(t=>`<div class="lt" style="--c:${esc(tc(t.abbr))}"><b>${esc(t.abbr)} leaders</b>${t.cats.map(c=>
+    `<div class="lr"><span class="lc">${esc(SH[c.label]||c.label.split(' ')[0])}</span><span class="lw">${esc(c.who)}</span><span class="lv">${esc(c.val)}</span></div>`).join('')}</div>`).join('')}</div>`:'';
   return`<div class="hero${pre?' pre':''}" style="--fc:${esc(fav.color)}">
     <div class="top"><span class="gd">Game day</span><span class="lg">${esc(g.lg.label)}</span><span class="st">${esc(statusText(g))}</span><span class="net">${esc(g.net)}</span></div>
-    ${tm(g.away)}${tm(g.home)}${sit?`<div class="sit">${sit}</div>`:''}</div>`;
+    <div class="hb${ldr?'':' solo'}"><div class="hm">${tm(g.away)}${tm(g.home)}${wp}${sit?`<div class="sit">${sit}</div>`:''}</div>${ldr}</div></div>`;
 }
 
 function buildCrawl(all){
@@ -646,7 +692,7 @@ function DEMO(){
     sit:Object.assign({dd:'',pos:'',rz:false,lp:'',outs:null,on:[]},sit||{})});
   return{
     nfl:[g('nfl','in','6:48 - 3rd',-95,'FOX',t('GB','Packers','#204e32','#ffb612','17','7-4'),t('DET','Lions','#0076b6','#b0b7bc','24','9-2'),null,
-          {dd:'2nd & 6 at GB 18',pos:'DET',rz:true,lp:'Jahmyr Gibbs rush up the middle for 9 yards'}),
+          {dd:'2nd & 6 at GB 18',pos:'DET',rz:true,lp:'Lions RB rush up the middle for 9 yards'}),
          g('nfl','pre','',2900,'CBS',t('KC','Chiefs','#e31837','#ffb81c','','8-3'),t('DAL','Cowboys','#003594','#869397','','6-5'),{line:'KC -2.5',ou:'48.5'}),
          g('nfl','post','Final',-1300,'NBC',t('BUF','Bills','#00338d','#c60c30','31','8-3',1),t('MIA','Dolphins','#008e97','#fc4c02','17','4-7'))],
     nba:[g('nba','in','8:40 - 2nd',-40,'ESPN',t('BOS','Celtics','#007a33','#ffffff','52','12-5'),t('NYK','Knicks','#f58426','#006bb6','49','11-6')),
@@ -669,11 +715,21 @@ setInterval(tick,1000);
 if(demo){
   games=DEMO();demoStatic();
   Object.assign(games.nba[0],{period:4,clock:'2:14',detail:'2:14 - 4th'});games.nba[0].away.score='98';games.nba[0].home.score='96';
-  Object.assign(games.nhl[0],{period:2,clock:'12:02'});for(const l of Object.values(games))watch(l);
+  Object.assign(games.nhl[0],{period:2,clock:'12:02'});
+  const L=(abbr,cats)=>({abbr,cats:cats.map(([label,who,val])=>({label,who,val}))});
+  summ.nflGBDET={wp:{a:22,h:78,t:0,live:true},leaders:[
+    L('GB',[['Passing Yards','Packers QB','16/27, 188 YDS, 1 TD'],['Rushing Yards','Packers RB','11 CAR, 52 YDS'],['Receiving Yards','Packers WR','5 REC, 71 YDS']]),
+    L('DET',[['Passing Yards','Lions QB','21/28, 254 YDS, 2 TD'],['Rushing Yards','Lions RB','17 CAR, 96 YDS, 1 TD'],['Receiving Yards','Lions WR','7 REC, 102 YDS']])]};
+  summ.nbaDETCLE={wp:{a:64,h:36,t:0,live:true},leaders:[
+    L('DET',[['Points','Pistons G','24'],['Rebounds','Pistons C','11'],['Assists','Pistons G','8']]),
+    L('CLE',[['Points','Cavaliers G','21'],['Rebounds','Cavaliers C','9'],['Assists','Cavaliers G','6']])]};for(const l of Object.values(games))watch(l);
   $('upd').textContent='Demo mode: sample data, not real scores';render();
   setTimeout(()=>{const g=games.nfl[0];g.home.score='31';g.detail='5:51 - 3rd';watch(games.nfl);render()},5000);
   setTimeout(()=>{const g=games.nhl[0];Object.assign(g,{period:3,clock:'4:10',detail:'4:10 - 3rd'});g.home.score='2';watch(games.nhl);render();if(wantJump){wantJump=false;jumpToScores()}},15000);
-  setTimeout(()=>{const g=games.nfl[0];g.home.score='34';g.away.score='20';g.state='post';g.detail='Final';g.home.winner=true;g.sit={dd:'',pos:'',rz:false,lp:'',outs:null,on:[]};watch(games.nfl);render()},26000);
+  setTimeout(()=>{const g=games.nfl[0];g.home.score='34';g.away.score='20';g.state='post';g.detail='Final';g.home.winner=true;g.sit={dd:'',pos:'',rz:false,lp:'',outs:null,on:[]};watch(games.nfl);
+    const d=games.nba[1];Object.assign(d,{state:'in',period:3,clock:'5:20',detail:'5:20 - 3rd',odds:null,date:new Date(Date.now()-50*6e4)});d.away.score='78';d.home.score='74';d.sit.lp='Pistons guard drives baseline for a layup';
+    watch(games.nba);render()},26000);
+  setTimeout(()=>{const d=games.nba[1];Object.assign(d,{state:'post',detail:'Final'});d.away.score='112';d.home.score='104';d.away.winner=true;d.sit.lp='';watch(games.nba);render()},62000);
 }else{
   loadScores(true).then(loadStandings);loadNews();loadWx();
   setInterval(()=>loadScores(false),15000);

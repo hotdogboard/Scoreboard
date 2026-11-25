@@ -20,12 +20,10 @@ html,body{height:100%}
 body{margin:0;background:radial-gradient(90% 70% at 15% -10%,var(--glow),transparent 70%),var(--bg);color:var(--ink);font:1rem/1.35 Inter,system-ui,sans-serif;overflow:hidden;cursor:default}
 .app{height:100vh;display:grid;grid-template-rows:auto 1fr auto;transition:transform 2s}
 header{display:flex;align-items:center;gap:1.4rem;padding:1.1rem 2.2rem;border-bottom:1px solid var(--line)}
-.mini{flex:1;display:flex;gap:.8rem;justify-content:center;overflow:hidden;animation:fade .5s}
+.mini{flex:1;display:flex;gap:.8rem;justify-content:flex-start;overflow:hidden;animation:fade .5s}
 .chip{flex:none;display:flex;align-items:center;gap:.6rem;padding:.35rem 1rem .35rem .4rem;border-radius:2rem;background:var(--panel);border:1px solid var(--line);font:700 1.55rem/1.1 "Barlow Condensed",sans-serif;white-space:nowrap}
 .chip .lg{font-size:1.05rem}.chip i{font-style:normal;font-weight:600;font-size:1.2rem;color:var(--dim)}.chip.lv i{color:var(--live)}
 .chip.close{border-color:var(--warn)}.chip.fav{border-color:color-mix(in srgb,var(--red) 70%,transparent)}
-.brand{font:700 2.2rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.02em;flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brand span{color:var(--red)}
 .wx,.clock{font-family:"Barlow Condensed",sans-serif;white-space:nowrap}
 .wx{font-size:1.6rem;color:var(--dim)}.wx b{color:var(--ink);font-weight:600}
 .clock{font-size:2.6rem;font-weight:700;line-height:1}.clock small{display:block;font-size:1rem;font-weight:500;color:var(--dim);text-align:right}
@@ -167,7 +165,6 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
 <body>
 <div class="app" id="app">
   <header>
-    <div class="brand" id="brand">Man <span>Cave</span></div>
     <div class="mini" id="mini"></div>
     <div class="wx" id="wx"></div>
     <div class="clock" id="clock"></div>
@@ -188,7 +185,6 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
 <dialog id="dlg">
   <form id="form" method="dialog">
     <h3>Ticker settings</h3>
-    <div class="f"><label for="sName">Name at the top</label><input type="text" id="sName" maxlength="30"></div>
     <div class="f"><p>Leagues</p><div class="chips" id="sLeagues"></div><small>Leagues out of season simply show nothing.</small></div>
     <div class="f"><label for="sFavs">Favorite teams</label><input type="text" id="sFavs" placeholder="DET, MSU">
       <small>Team abbreviations, separated by commas. DET covers the Lions, Tigers, Pistons and Red Wings. Add a league to be specific, like nfl:DET.</small></div>
@@ -240,17 +236,17 @@ const LEAGUES=[
 ];
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
-const DEF={skin:'midnight',name:'Man Cave',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',speed:160,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
+const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',speed:160,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v10';
+const VER='v11';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
 let pages=[],extras=[],cur={k:'p',i:0},cycle=0,xIdx=0,vTimer=null,crawlHtml='',pendingCrawl=null,heroSig=null,heroNow=[];
-const summ={},summAt={};
+const summ={},summAt={},seasonType={};
 const closeSeen=new Set(),toastQ=[];let toastOn=false,wantJump=false;
 
 function load(){
@@ -264,7 +260,6 @@ function load(){
   if(q.get('teams'))c.favs=q.get('teams');
   if(q.get('leagues'))c.leagues=q.get('leagues').split(',');
   if(q.get('city'))c.city=q.get('city');
-  if(q.get('name'))c.name=q.get('name');
   return c;
 }
 function save(){try{localStorage.setItem('ticker-cfg',JSON.stringify(cfg))}catch(e){}}
@@ -303,7 +298,7 @@ async function loadScores(force){
   if(demo)return;
   await Promise.all(on().filter(l=>force||due(l)).map(async l=>{
     last[l.id]=Date.now();
-    try{const j=await getJSON(API+l.path+'/scoreboard');const gs=(j.events||[]).map(e=>parseEvent(e,l));watch(gs);games[l.id]=gs;delete errs[l.id]}
+    try{const j=await getJSON(API+l.path+'/scoreboard');const gs=(j.events||[]).map(e=>parseEvent(e,l));watch(gs);games[l.id]=gs;const se=j.leagues&&j.leagues[0]&&j.leagues[0].season;seasonType[l.id]=se&&se.type?+(se.type.type||se.type.id||se.type):0;delete errs[l.id]}
     catch(e){errs[l.id]=l.label}
   }));
   for(const k in games)if(!cfg.leagues.includes(k))delete games[k];
@@ -351,7 +346,8 @@ async function loadStandings(){
   stand={};ranks={};
   if(cfg.stand==='off')return;
   await Promise.all(on().map(async l=>{
-    if(!(games[l.id]||[]).length)return; // out of season
+    const near=(games[l.id]||[]).some(g=>Math.abs(g.date-Date.now())<7*864e5);
+    if(!near||(seasonType[l.id]&&![2,3].includes(seasonType[l.id])))return; // out of season
     try{
       const gs=groupsOf(await getJSON(API2+l.path+'/standings'),[]);
       const picks=new Map();
@@ -572,7 +568,7 @@ function updateMini(step){
   let gs=all.filter(g=>g.state==='in');
   if(!gs.length)gs=all.filter(g=>relevant(g,isFav(g)));
   gs.sort(sortG);
-  const per=$('wx').textContent?3:4,n=Math.ceil(gs.length/per)||1;
+  const per=$('wx').textContent?4:5,n=Math.ceil(gs.length/per)||1;
   if(step)miniIdx=(miniIdx+1)%n;else if(miniIdx>=n)miniIdx=0;
   el.innerHTML=gs.slice(miniIdx*per,miniIdx*per+per).map(g=>{const pre=g.state==='pre';
     return`<span class="chip${g.state==='in'?' lv':''}${isFav(g)?' fav':''}${isClose(g)?' close':''}"><span class="lg">${esc(g.lg.label)}</span>${esc(g.away.abbr)}${pre?'':' '+esc(g.away.score)} ${pre?'at ':''}${esc(g.home.abbr)}${pre?'':' '+esc(g.home.score)}<i>${esc(statusText(g))}</i></span>`}).join('');
@@ -674,8 +670,6 @@ function tick(){
   }
 }
 function applyLook(){
-  const n=(cfg.name||'').trim().split(/\s+/);
-  $('brand').innerHTML=n.length>1?esc(n.slice(0,-1).join(' '))+' <span>'+esc(n[n.length-1])+'</span>':`<span>${esc(n[0]||'')}</span>`;
   document.documentElement.style.setProperty('--scale',+cfg.size||1);
   document.documentElement.dataset.skin=cfg.skin||'midnight';
 }
@@ -685,7 +679,7 @@ const dlg=$('dlg');
 $('sLeagues').innerHTML=LEAGUES.map(l=>`<label><input type="checkbox" value="${l.id}"> ${esc(l.label)}</label>`).join('');
 const CHK={sNews:'news',sOdds:'odds',sCele:'cele',sTake:'take'};
 function openSettings(){
-  $('sName').value=cfg.name;$('sFavs').value=cfg.favs;$('sCity').value=cfg.city;
+  $('sFavs').value=cfg.favs;$('sCity').value=cfg.city;
   $('sSkin').value=cfg.skin||'midnight';$('sStand').value=cfg.stand;$('sPace').value=String(cfg.pace||1);$('sSpeed').value=String(cfg.speed);$('sSize').value=String(cfg.size);$('sDelay').value=String(cfg.delay);
   for(const k in CHK)$(k).checked=!!cfg[CHK[k]];
   for(const c of $('sLeagues').querySelectorAll('input'))c.checked=cfg.leagues.includes(c.value);
@@ -695,7 +689,7 @@ function closeSettings(){if(dlg.close)dlg.close();else dlg.removeAttribute('open
 $('gear').addEventListener('click',openSettings);
 $('cancel').addEventListener('click',closeSettings);
 $('save').addEventListener('click',()=>{
-  cfg={v2:1,pace:+$('sPace').value||1,stand:$('sStand').value,skin:$('sSkin').value,name:$('sName').value.trim()||DEF.name,favs:$('sFavs').value,city:$('sCity').value.trim(),
+  cfg={v2:1,pace:+$('sPace').value||1,stand:$('sStand').value,skin:$('sSkin').value,favs:$('sFavs').value,city:$('sCity').value.trim(),
     speed:+$('sSpeed').value||110,size:+$('sSize').value||1,delay:+$('sDelay').value||0,
     leagues:[...$('sLeagues').querySelectorAll('input:checked')].map(c=>c.value)};
   for(const k in CHK)cfg[CHK[k]]=$(k).checked;

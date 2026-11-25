@@ -202,8 +202,8 @@ textarea:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
     <section class="card">
       <h2>The Nice List</h2>
       <div class="kids" id="kids"></div>
-      <p class="note" id="sample">These are sample names. Tap the gear to add your kids.</p>
-      <p class="note" id="elfNote">Tap the elf hat to move kids up or down the list.</p>
+      
+      
     </section>
   </main>
 
@@ -372,8 +372,6 @@ function renderKids(pop){
     <span class="meter"><em style="width:${k.s}%"></em></span>
     ${st.parent?`<div class="adj"><button data-i="${i}" data-d="-5" aria-label="Less nice for ${esc(k.n)}">&minus;</button><button data-i="${i}" data-d="5" aria-label="More nice for ${esc(k.n)}">+</button></div>`:'<div></div>'}
   </div>`).join('');
-  $('#sample').hidden=!st.sample;
-  $('#elfNote').hidden=st.parent;
   $('#fam').textContent=st.family?st.family+"'s Christmas command center":'Christmas command center';
   const pb=$('#parentBtn');pb.classList.toggle('on',st.parent);pb.setAttribute('aria-pressed',st.parent);
   pb.querySelector('span').textContent=st.parent?'Elf mode: on':'Elf mode';pb.title=st.parent?'Elf mode is on (tap to turn off)':'Elf mode';

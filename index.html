@@ -98,7 +98,11 @@ sup{font-size:.5em;color:var(--dim);margin-right:.3rem;vertical-align:super}
 .lr .lc{color:var(--dim);font-size:1.1rem;text-transform:uppercase}
 .lr .lw{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lr .lv{white-space:nowrap}
 .heroes.two .ldr{border-left:0;padding-left:0;flex-direction:row;gap:1.6rem}.heroes.two .lt{flex:1;min-width:0}.heroes.two .lr:nth-child(n+3){display:none}.heroes.two .sit .lp{display:none}
-.strip .card{padding:.7rem 1.1rem;gap:.35rem}.strip .odds{display:none}
+.strip .card{padding:.7rem 1.1rem;gap:.35rem}.strip .odds,.strip .tp{display:none}
+.tp{display:grid;gap:.15rem;padding:.45rem 0 .1rem;border-top:1px solid var(--line);font:600 1.2rem/1.25 "Barlow Condensed",sans-serif}
+.tp div{display:grid;grid-template-columns:3rem minmax(0,1fr) auto;gap:.6rem;align-items:baseline;white-space:nowrap}
+.tp b{color:var(--dim)}.tp span{overflow:hidden;text-overflow:ellipsis}.tp i{font-style:normal;color:var(--dim);overflow:hidden;text-overflow:ellipsis;max-width:14rem}
+.wall.big .tp{font-size:1.5rem}.wall.big .tp div{grid-template-columns:3.8rem minmax(0,1fr) auto}.wall.big .tp i{max-width:20rem}
 .strip{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.1rem}
 /* tables */
 .tbl{flex:1;display:grid;grid-template-columns:repeat(var(--tc,1),minmax(0,1fr));gap:0 3rem;align-content:start}
@@ -241,7 +245,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v12';
+const VER='v13';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -276,7 +280,18 @@ function parseEvent(ev,lg){
   const team=x=>{const t=x.team||{};const r=x.curatedRank&&x.curatedRank.current;
     return{id:String(t.id||x.id||''),abbr:t.abbreviation||t.shortDisplayName||'?',short:t.shortDisplayName||t.displayName||'',mascot:t.name||t.shortDisplayName||'',
       color:col(t.color),alt:col(t.alternateColor),logo:t.logo||'',score:x.score??'',winner:!!x.winner,
-      rec:(x.records&&x.records[0]&&x.records[0].summary)||'',rank:r&&r<=25?r:null}};
+      rec:(x.records&&x.records[0]&&x.records[0].summary)||'',rank:r&&r<=25?r:null,top:x._top||null}};
+  // top performer: team-level leaders (basketball, hockey, baseball) or game-level leaders tagged by team (football)
+  const topOf=(x,t)=>{
+    const fmt=(cat,l)=>{const a=l.athlete||{},v=l.displayValue||'';if(!(a.shortName||a.displayName)||!v)return null;
+      return{who:a.shortName||a.displayName,val:/^[\d.]+$/.test(v)?v+' '+(cat.abbreviation||cat.shortDisplayName||cat.displayName||''):v}};
+    const ls=x.leaders||[];
+    const cat=ls.find(c=>c.name==='rating')||ls.find(c=>/points|goals|^hits|passingYards/.test(c.name||''))||ls[0];
+    if(cat&&cat.leaders&&cat.leaders[0])return fmt(cat,cat.leaders[0]);
+    for(const gc of c.leaders||[])for(const l of gc.leaders||[]){const tid=String((l.team&&l.team.id)||'');if(tid&&tid===t.id)return fmt(gc,l)}
+    return null;
+  };
+  for(const x of cs){const t=x.team||{};x._top=topOf(x,{id:String(t.id||x.id||'')})}
   const st=(ev.status&&ev.status.type)||{};
   const b=(c.broadcasts&&c.broadcasts[0]&&c.broadcasts[0].names)||[];
   const o=(c.odds||[])[0]||null;
@@ -582,8 +597,10 @@ function card(g){
     <span class="nm">${rankName(t)}<small>${esc(t.rec)}</small></span><span class="sc">${g.state==='pre'?'':esc(t.score)}</span></div>`;
   const od=oddsText(g);
   const cl=isClose(g);
+  const tops=g.state!=='pre'?[g.away,g.home].filter(t=>t.top):[];
+  const tp=tops.length?`<div class="tp">${tops.map(t=>`<div><b>${esc(t.abbr)}</b><span>${esc(t.top.who)}</span><i>${esc(t.top.val)}</i></div>`).join('')}</div>`:'';
   return`<div class="card${g.state==='in'?' live':''}${isFav(g)?' fav':''}${cl?' close':''}">${tm(g.away)}${tm(g.home)}
-    <div class="ft"><span class="lg">${esc(g.lg.label)}</span><span class="st">${esc(statusText(g))}</span>${cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
+    ${tp}<div class="ft"><span class="lg">${esc(g.lg.label)}</span><span class="st">${esc(statusText(g))}</span>${cl?'<span class="cl">Close game</span>':`<span class="net">${esc(g.net)}</span>`}</div>
     ${od?`<div class="odds">${esc(od)}</div>`:''}</div>`;
 }
 function heroCard(g){
@@ -745,6 +762,11 @@ if(demo){
   games=DEMO();demoStatic();
   Object.assign(games.nba[0],{period:4,clock:'2:14',detail:'2:14 - 4th'});games.nba[0].away.score='98';games.nba[0].home.score='96';
   Object.assign(games.nhl[0],{period:2,clock:'12:02'});
+  const T=(t,who,val)=>{t.top={who,val}};
+  T(games.nba[0].away,'Celtics F','29 PTS');T(games.nba[0].home,'Knicks G','31 PTS');
+  T(games.nhl[0].away,'Blackhawks C','1 G');T(games.nhl[0].home,'Stars RW','1 G, 1 A');
+  T(games.nfl[0].away,'Packers QB','188 YDS, 1 TD');T(games.nfl[0].home,'Lions QB','254 YDS, 2 TD');
+  T(games.nfl[2].away,'Bills QB','276 YDS, 3 TD');T(games.nfl[2].home,'Dolphins RB','84 YDS');
   const L=(abbr,cats)=>({abbr,cats:cats.map(([label,who,val])=>({label,who,val}))});
   summ.nflGBDET={wp:{a:22,h:78,t:0,live:true},leaders:[
     L('GB',[['Passing Yards','Packers QB','16/27, 188 YDS, 1 TD'],['Rushing Yards','Packers RB','11 CAR, 52 YDS'],['Receiving Yards','Packers WR','5 REC, 71 YDS']]),

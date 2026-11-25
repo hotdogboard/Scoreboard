@@ -288,7 +288,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v19';
+const VER='v20';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -882,6 +882,16 @@ for(const ev of ['mousemove','click','keydown','wheel','touchstart'])addEventLis
 document.addEventListener('keydown',e=>{if(detId&&(e.key==='Escape'||e.key==='Backspace'||e.key==='GoBack'||e.key==='BrowserBack')){e.preventDefault();closeDetail(false)}});
 document.addEventListener('keydown',e=>{if(!dlg.open&&(e.key==='s'||e.key==='ContextMenu'||e.key==='Menu')){e.preventDefault();openSettings()}});
 
+// auto-update: every 5 minutes, check version.json; reload when a new version is published (never mid-celebration or mid-detail)
+let newVer=null;
+async function checkVersion(){
+  if(demo||location.protocol==='file:')return;
+  try{const j=await getJSON('version.json?t='+Date.now());if(j&&j.v&&j.v!==VER)newVer=String(j.v)}catch(e){}
+}
+setInterval(()=>{
+  if(newVer&&!detId&&!celeOn&&!(dlg&&dlg.open)){const q=new URLSearchParams(location.search);q.set('v',newVer);location.replace(location.pathname+'?'+q.toString()+location.hash)}
+},15000);
+setInterval(checkVersion,5*60000);setTimeout(checkVersion,60000);
 // keep the screen awake where the browser allows it
 async function wake(){try{if(navigator.wakeLock&&document.visibilityState==='visible')await navigator.wakeLock.request('screen')}catch(e){}}
 document.addEventListener('visibilitychange',wake);

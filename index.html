@@ -167,6 +167,10 @@ footer{background:var(--crawl);border-top:1px solid var(--line);box-shadow:0 -1p
 @keyframes flash{50%{opacity:0}}
 @keyframes pop{from{transform:scale(.4);opacity:0}}
 @keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}
+.ord{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.5rem}
+.ord li{display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);border-radius:.6rem;padding:.3rem .4rem .3rem .9rem;font-weight:600;counter-increment:o}
+.ord li::before{content:counter(o) '.';color:var(--dim);margin-right:.2rem}.ord li span{flex:1}
+.ord button{min-width:44px;min-height:44px;border-radius:.5rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1rem;cursor:pointer}.ord button:disabled{opacity:.3;cursor:default}
 /* game detail */
 .card,.hero{cursor:pointer}
 .card:hover{border-color:color-mix(in srgb,var(--ink) 45%,transparent)}
@@ -245,6 +249,7 @@ input[type=text],select{width:100%;font:max(16px,1.1rem) Inter,sans-serif;paddin
   <form id="form" method="dialog">
     <h3>Ticker settings</h3>
     <div class="f"><p>Leagues</p><div class="chips" id="sLeagues"></div><small>Leagues out of season simply show nothing.</small></div>
+    <div class="f"><p>League order</p><ol class="ord" id="sOrder"></ol><small>Your teams always come first. Then games follow this order on the board and in the crawl.</small></div>
     <div class="f"><label for="sFavs">Favorite teams</label><input type="text" id="sFavs" placeholder="DET, MSU">
       <small>Team abbreviations, separated by commas. DET covers the Lions, Tigers, Pistons and Red Wings. Add a league to be specific, like nfl:DET.</small></div>
     <div class="two-col">
@@ -297,14 +302,17 @@ const LEAGUES=[
 ];
 const LC={nfl:'#3d9bff',ncaaf:'#34c38f',nba:'#ff8a3d',ncaab:'#b48cff',nhl:'#7fd3ff',mlb:'#ff5d6c',wnba:'#ff9fc6',epl:'#c6f06a',mls:'#c6f06a'};
 const lgTag=(l,cls)=>`<span class="${cls||'lg'}" style="--lc:${LC[l.id]||'#3d9bff'}">${esc(l.label)}</span>`;
+const ORDER_DEF=['nfl','ncaaf','nba','ncaab','nhl','mlb','wnba','epl','mls'];
+const lgRank=id=>{const o=(cfg&&cfg.order)||ORDER_DEF,i=o.indexOf(id);return i<0?99:i};
+const byOrder=()=>[...LEAGUES].sort((a,b)=>lgRank(a.id)-lgRank(b.id));
 const LG=Object.fromEntries(LEAGUES.map(l=>[l.id,l]));
 const API='https://site.api.espn.com/apis/site/v2/sports/',API2='https://site.api.espn.com/apis/v2/sports/';
-const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,news:true,odds:true,stand:'light',cele:true,take:true,inj:true,golf:true};
+const DEF={skin:'midnight',leagues:['nfl','ncaaf','nba','nhl','ncaab','mlb'],favs:'nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU',city:'',crawl:12,pace:1,size:1,delay:0,order:ORDER_DEF.slice(),news:true,odds:true,stand:'light',cele:true,take:true,inj:true,golf:true};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const col=c=>/^[0-9a-f]{3,8}$/i.test(c||'')?'#'+c:'#55555f';
 const demo=/[?&]demo\b/.test(location.search);
-const VER='v22';
+const VER='v23';
 
 let cfg=load();
 let games={},news={},stand={},ranks={},errs={},last={},prev=new Map();
@@ -317,6 +325,7 @@ function load(){
   try{const sv=JSON.parse(localStorage.getItem('ticker-cfg')||'{}');Object.assign(c,sv);
     if(!sv.crawl&&sv.speed)c.crawl={70:20,110:15,160:12,220:9,300:7}[sv.speed]||12;}catch(e){}
   if(/^\s*DET\s*,\s*MSU\s*$/i.test(c.favs||''))c.favs='nfl:DET, nba:DET, nhl:DET, mlb:DET, ncaaf:MSU, ncaab:MSU';
+  c.order=[...(Array.isArray(c.order)?c.order.filter(x=>ORDER_DEF.includes(x)):[]),...ORDER_DEF].filter((x,i,a)=>a.indexOf(x)===i);
   if(typeof c.stand==='boolean')c.stand=c.stand?'light':'off';
   if(!['light','all','off'].includes(c.stand))c.stand='light';c.v2=1;
   const q=new URLSearchParams(location.search);
@@ -586,7 +595,7 @@ function isUpset(g){
   return late&&!!upsetPair(g);
 }
 const hot=g=>isClose(g)||isUpset(g);
-const sortG=(a,b)=>(isFav(b)-isFav(a))||(hot(b)-hot(a))||(ORD[a.state]-ORD[b.state])||(a.state==='post'?b.date-a.date:a.date-b.date);
+const sortG=(a,b)=>(isFav(b)-isFav(a))||(lgRank(a.lg.id)-lgRank(b.lg.id))||(hot(b)-hot(a))||(ORD[a.state]-ORD[b.state])||(a.state==='post'?b.date-a.date:a.date-b.date);
 function heroGames(all){
   if(!cfg.take)return[];
   return all.filter(g=>isFav(g)&&(g.state==='in'||(g.state==='pre'&&g.date-Date.now()<3*36e5&&g.date-Date.now()>-36e5))).sort(sortG).slice(0,2);
@@ -605,8 +614,8 @@ function render(){
     if(!pages.length)pages.push({k:'scores',games:[],t:20});
     if(cfg.stand!=='off'){
       if(golfOn())extras.push({k:'golf',t:18});
-      for(const l of LEAGUES){(stand[l.id]||[]).forEach(x=>extras.push({k:'stand',l,s:x,t:16}));}
-      for(const l of LEAGUES){(ranks[l.id]||[]).forEach(r=>extras.push({k:'rank',l,r,t:16}));}
+      for(const l of byOrder()){(stand[l.id]||[]).forEach(x=>extras.push({k:'stand',l,s:x,t:16}));}
+      for(const l of byOrder()){(ranks[l.id]||[]).forEach(r=>extras.push({k:'rank',l,r,t:16}));}
     }
   }
   const sig=heroes.map(h=>h.id).join();
@@ -832,7 +841,7 @@ function heroCard(g){
 
 function buildCrawl(all){
   let h='';
-  for(const l of LEAGUES){
+  for(const l of byOrder()){
     const gs=(games[l.id]||[]).filter(g=>relevant(g,true)).sort(sortG);
     if(!gs.length)continue;
     h+=lgTag(l,'tag')+gs.map(crawlGame).join('');
@@ -845,7 +854,7 @@ function buildCrawl(all){
     const gr=golf.ev.rows.slice(0,10);
     if(gr.length)h+=`<span class="tag" style="--lc:#e7c35a">PGA · ${esc(golf.ev.name)}</span>`+gr.map(r=>`<span class="g"><i class="gp">${esc(r.pos)}</i> <b>${esc(r.name)}</b> ${esc(r.sc)}<i>${esc(r.thru)}</i></span>`).join('');
   }
-  if(cfg.news)for(const l of LEAGUES){
+  if(cfg.news)for(const l of byOrder()){
     const n=news[l.id];if(!n||!n.length)continue;
     h+=`<span class="tag news">${esc(l.label)} News</span>`+n.map(t=>`<span class="h">${esc(t)}</span><span class="sep">/</span>`).join('');
   }
@@ -902,7 +911,13 @@ function applyLook(){
 const dlg=$('dlg');
 $('sLeagues').innerHTML=LEAGUES.map(l=>`<label><input type="checkbox" value="${l.id}"> ${esc(l.label)}</label>`).join('');
 const CHK={sNews:'news',sOdds:'odds',sCele:'cele',sTake:'take',sInj:'inj',sGolf:'golf'};
+let ordWork=[];
+function drawOrder(){
+  $('sOrder').innerHTML=ordWork.map((id,i)=>`<li><span>${esc(LG[id].label)}</span><button type="button" data-mv="-1" data-i="${i}" ${i===0?'disabled':''} aria-label="Move up">▲</button><button type="button" data-mv="1" data-i="${i}" ${i===ordWork.length-1?'disabled':''} aria-label="Move down">▼</button></li>`).join('');
+}
+$('sOrder').addEventListener('click',e=>{const b=e.target.closest('button[data-mv]');if(!b)return;const i=+b.dataset.i,j=i+ +b.dataset.mv;if(j<0||j>=ordWork.length)return;[ordWork[i],ordWork[j]]=[ordWork[j],ordWork[i]];drawOrder()});
 function openSettings(){
+  ordWork=(cfg.order||ORDER_DEF).slice();drawOrder();
   $('sFavs').value=cfg.favs;$('sCity').value=cfg.city;
   $('sSkin').value=cfg.skin||'midnight';$('sStand').value=cfg.stand;$('sPace').value=String(cfg.pace||1);$('sSpeed').value=String(cfg.crawl);$('sSize').value=String(cfg.size);$('sDelay').value=String(cfg.delay);
   for(const k in CHK)$(k).checked=!!cfg[CHK[k]];
@@ -915,7 +930,7 @@ $('cancel').addEventListener('click',closeSettings);
 $('save').addEventListener('click',()=>{
   cfg={v2:1,pace:+$('sPace').value||1,stand:$('sStand').value,skin:$('sSkin').value,favs:$('sFavs').value,city:$('sCity').value.trim(),
     crawl:+$('sSpeed').value||12,size:+$('sSize').value||1,delay:+$('sDelay').value||0,
-    leagues:[...$('sLeagues').querySelectorAll('input:checked')].map(c=>c.value)};
+    order:ordWork.slice(),leagues:[...$('sLeagues').querySelectorAll('input:checked')].map(c=>c.value)};
   for(const k in CHK)cfg[CHK[k]]=$(k).checked;
   save();closeSettings();applyLook();crawlHtml='';heroSig=null;
   if(demo){render()}else{loadScores(true).then(()=>{loadStandings();loadTeams().then(loadInjuries)});loadNews();loadWx();loadGolf()}
